@@ -14,6 +14,9 @@ use Symfony\Component\DependencyInjection\Loader;
  */
 class AzineXingAPIExtension extends Extension
 {
+	const CONSUMER_KEY = "consumer_key";
+	const CONSUMER_SECRET = "consumer_secret";
+
     /**
      * {@inheritDoc}
      */
