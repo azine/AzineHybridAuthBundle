@@ -2,7 +2,7 @@
     "name": "azine/xingapi-bundle",
     "type": "symfony-bundle",
     "description": "Symfony2 bundle to access the Xing API",
-    "keywords": ["xing", "oauth", "xing api", ],
+    "keywords": ["xing", "oauth", "xing api"],
     "homepage": "https://github.com/azine/AzineXingAPIBundle",
     "license": "MIT",
     "authors": [
