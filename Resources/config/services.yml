@@ -1,0 +1,7 @@
+parameters:
+#    azine_xing_api.example.class: Azine\XingAPIBundle\Example
+
+services:
+#    azine_xing_api.example:
+#        class: %azine_xing_api.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]

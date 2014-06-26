@@ -1,0 +1,3 @@
+azine_xing_api_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: AzineXingAPIBundle:Default:index }
