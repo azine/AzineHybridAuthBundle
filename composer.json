@@ -1,9 +1,9 @@
 {
-    "name": "azine/xingapi-bundle",
+    "name": "azine/hybrid-auth-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony2 bundle to access the Xing API",
+    "description": "Symfony2 bundle to access the profiles via Xing- and Linkedin-API, uses HybridAuth",
     "keywords": ["xing", "oauth", "xing api"],
-    "homepage": "https://github.com/azine/AzineXingAPIBundle",
+    "homepage": "https://github.com/azine/AzineHybridAuthBundle",
     "license": "MIT",
     "authors": [
         {
@@ -17,13 +17,13 @@
         "symfony/console": ">=2.1",
         "symfony/finder": ">=2.1",
         "symfony/twig-bundle": ">=2.1",
-        "doctrine/orm": ">=2.0",
+        "hybridauth/hybridauth": "3.0.0.*@dev",
         "monolog/monolog": ">=1.6",
         "twig/extensions": "1.0.*"        
     },
     "autoload": {
-        "psr-0": { "Azine\\XingAPIBundle": "" }
+        "psr-0": { "Azine\\HybridAuthBundle": "" }
     },
     "minimum-stability": "dev",
-    "target-dir": "Azine/XingAPIBundle"
+    "target-dir": "Azine/HybridAuthBundle"
 }
