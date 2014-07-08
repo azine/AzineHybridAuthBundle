@@ -1,7 +1,24 @@
 parameters:
-#    azine_xing_api.example.class: Azine\XingAPIBundle\Example
 
 services:
-#    azine_xing_api.example:
-#        class: %azine_xing_api.example.class%
+#    azine_hybrid_auth.example:
+#        class: %azine_hybrid_auth.example.class%
 #        arguments: [@service_id, "plain_value", %parameter%]
+
+    azine_hybrid_auth_service:
+        class:  Azine\HybridAuthBundle\Services\AzineHybridAuth
+        arguments:
+            router: "@router"
+            config: 
+                endpoint_route:   "%azine_hybrid_auth_endpoint_route%"
+                providers:        "%azine_hybrid_auth_providers%"
+                debug_mode:       "%azine_hybrid_auth_debug%" 
+                debug_file:       "%azine_hybrid_auth_debug_file%" 
+            
+    azine_business_networks_provider_service:
+        class:  Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider
+        arguments:
+            hybridAuth: "@azine_hybrid_auth_service" 
+            session: "@session"
+            
+    

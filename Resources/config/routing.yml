@@ -1,3 +1,38 @@
-azine_xing_api_homepage:
-    pattern:  /hello/{name}
-    defaults: { _controller: AzineXingAPIBundle:Default:index }
+# hybrid-auth endpoint for authentication handling etc.
+azine_hybrid_auth_endpoint:
+    pattern:  /endpoint
+    defaults: { _controller: "AzineHybridAuthBundle:HybridEndPoint:process" }
+    
+# Merged Xing and LinkedIn results
+azine_all_merged_business_contacts:
+    pattern:   /all/contacts/{pageSize}/{offset}
+    defaults: { _controller: "AzineHybridAuthBundle:BusinessContacts:mergedContacts", pageSize: 50, offset: 0}
+    
+# Xing api-access    
+azine_hybrid_auth_xing_profile:
+    pattern:  /xing/profile
+    defaults: { _controller: "AzineHybridAuthBundle:Xing:profile" }
+
+azine_hybrid_auth_xing_contacts:
+    pattern:  /xing/contacts
+    defaults: { _controller: "AzineHybridAuthBundle:Xing:contacts" }
+    
+azine_hybrid_auth_xing_api:
+    pattern:  /xing/api
+    defaults: { _controller: "AzineHybridAuthBundle:Xing:api" }
+    
+# LinkedIn api-access
+azine_hybrid_auth_linkedin_profile:
+    pattern:  /linkedin/profile
+    defaults: { _controller: "AzineHybridAuthBundle:Linkedin:profile" }
+
+azine_hybrid_auth_linkedin_contacts:
+    pattern:  /linkedin/contacts
+    defaults: { _controller: "AzineHybridAuthBundle:Linkedin:contacts" }
+    
+azine_hybrid_auth_linkedin_api:
+    pattern:  /linkedin/api
+    defaults: { _controller: "AzineHybridAuthBundle:Linkedin:api" }
+    
+    
+

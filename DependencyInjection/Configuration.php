@@ -1,6 +1,8 @@
 <?php
 
-namespace Azine\XingAPIBundle\DependencyInjection;
+namespace Azine\HybridAuthBundle\DependencyInjection;
+
+use Azine\HybridAuthBundle\AzineHybridAuthBundle;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -15,14 +17,31 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritDoc}
      */
-    public function getConfigTreeBuilder()
-    {
+    public function getConfigTreeBuilder() {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('azine_xing_api');
+        $rootNode = $treeBuilder->root(AzineHybridAuthExtension::PREFIX);
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode->children()
+        	->scalarNode(AzineHybridAuthExtension::ENDPOINT_ROUTE)->defaultValue("azine_hybrid_auth_endpoint")->end()
+        	->scalarNode(AzineHybridAuthExtension::DEBUG)->defaultFalse()->end()
+        	->scalarNode(AzineHybridAuthExtension::DEBUG_FILE)->defaultValue("%kernel.logs_dir%/hybrid_auth_%kernel.environment%.log")->end()
+        	->arrayNode(AzineHybridAuthExtension::PROVIDERS)
+        		->useAttributeAsKey(AzineHybridAuthExtension::PROVIDER_NAME)
+                ->requiresAtLeastOneElement()
+            	//->isRequired()
+        		->prototype('array')
+        			->children()
+				        ->scalarNode(AzineHybridAuthExtension::ENABLED)->defaultTrue()->end()
+				        ->scalarNode(AzineHybridAuthExtension::SCOPE)->end()
+				        ->arrayNode(AzineHybridAuthExtension::KEYS)
+				        	->children()
+					        	->scalarNode(AzineHybridAuthExtension::KEY)->cannotBeEmpty()->end()
+					        	->scalarNode(AzineHybridAuthExtension::SECRET)->cannotBeEmpty()->end()
+					        ->end() // array
+				        ->end() // keys
+					->end() //children
+				->end() // prototype
+			->end(); // array
 
         return $treeBuilder;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Azine\XingAPIBundle\Tests\Controller;
+namespace Azine\HybridAuthBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
