@@ -57,6 +57,11 @@ azine_hybrid_auth_bundle:
     
 ```
 
+## Create apps on your preferred social networks/providers
+ Xing => https://dev.xing.com/applications/dashboard
+ LinkedIn => https://www.linkedin.com/secure/developer
+ 
+
 ## Configuration
 Configure at least one provider. See the links above for a list of available providers.
 
