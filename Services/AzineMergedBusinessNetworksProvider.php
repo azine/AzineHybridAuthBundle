@@ -58,11 +58,25 @@ class AzineMergedBusinessNetworksProvider {
 		$nextLi = $this->getLinkedInContacts();
 
 		// merge and sort the old and new contacts
-		$this->contacts = array_merge($this->contacts, $nextLi, $nextXi);
+		$this->contacts = $this->mergeContacts($nextXi, $nextLi);
 		usort($this->contacts, array($this, 'businessContactSorter'));
 
 		$this->session->set("business_contacts", $this->contacts);
 		$this->session->save();
+	}
+
+	/**
+	 * In this default implementation, all the contacts are just shared in one list, no
+	 * merging of duplicates is done.
+	 *
+	 * You can override this with your own logic as required.
+	 *
+	 * @param array of UserContact $xingContacts
+	 * @param array of UserContact $linkedinContacts
+	 * @return array of UserContact
+	 */
+	protected function mergeContacts($xingContacts, $linkedinContacts){
+		return array_merge($xingContacts, $linkedinContacts);
 	}
 
 	private static function businessContactSorter(UserContact $a, UserContact $b) {
@@ -97,7 +111,7 @@ class AzineMergedBusinessNetworksProvider {
 			$oContact->profileURL	= (property_exists($aTitle, 'permalink'))   	? $aTitle->permalink    : '';
 			$oContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name : '';
 			$oContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name : '';
-			$oContact->displayName	= (property_exists($aTitle, 'display_name'))	? $aTitle->display_name : '';
+			$oContact->displayName	= $oContact->firstName." ".$oContact->lastName;
 			$oContact->description	= (property_exists($aTitle, 'interests'))   	? $aTitle->interests    : '';
 			$oContact->email		= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
 
@@ -164,7 +178,7 @@ class AzineMergedBusinessNetworksProvider {
 			$uc->identifier  = (string) $connection->id;
 			$uc->firstName = (string) $connection->{'first-name'};
 			$uc->lastName = (string) $connection->{'last-name'};
-			$uc->displayName = (string) $connection->{'last-name'} . " " . $connection->{'first-name'};
+			$uc->displayName = (string) $connection->{'first-name'} . " " . $connection->{'last-name'};
 			$uc->profileURL  = (string) $connection->{'public-profile-url'};
 			$uc->photoURL    = (string) $connection->{'picture-url'};
 			$uc->description = (string) $connection->{'summary'};
