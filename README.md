@@ -65,6 +65,10 @@ azine_hybrid_auth_bundle:
 ## Configuration
 Configure at least one provider. See the links above for a list of available providers.
 
+The providers in the "hybridauth\hybridauth\Hybrid\Providers"-folder are available by default via their ID,
+the providers in the "hybridauth\additional-providers"-folder must be configured. => see the configuration 
+of the wrapper for the xing provider below.
+
 For the Xing and the LinkedIn provider there are some extra functionalities implemented. 
 For all others, there's the default functionality from the HybridAuth available.
 
@@ -82,6 +86,9 @@ azine_hybrid_auth:
         name: 
             enabled:              true
             scope:                ~ # comma-separated list of required 'access rights'
+            wrapper: 
+              path: ~               # full path to the file containing the wrapper class
+              class: ~              # the wrapper class
             keys:
                 key:                  ~ # your api-key for this provider
                 secret:               ~ # your secret for this provider
@@ -94,6 +101,9 @@ azine_hybrid_auth:
         xing:
             enabled: true
             scope: ~
+            wrapper: 
+              path: "%kernel.root_dir%/../vendor/hybridauth/hybridauth/additional-providers/hybridauth-xing/Providers/XING.php"
+              class: Hybrid_Providers_XING
             keys:
                 key: %xing_api_consumer_key%
                 secret: %xing_api_secret%

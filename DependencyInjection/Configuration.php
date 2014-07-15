@@ -33,6 +33,12 @@ class Configuration implements ConfigurationInterface
         			->children()
 				        ->scalarNode(AzineHybridAuthExtension::ENABLED)->defaultTrue()->end()
 				        ->scalarNode(AzineHybridAuthExtension::SCOPE)->end()
+				        ->arrayNode(AzineHybridAuthExtension::WRAPPER)
+				        	->children()
+					        	->scalarNode(AzineHybridAuthExtension::WRAPPER_PATH)->end()
+					        	->scalarNode(AzineHybridAuthExtension::WRAPPER_CLASS)->end()
+					        ->end() // array
+				        ->end() // wrapper
 				        ->arrayNode(AzineHybridAuthExtension::KEYS)
 				        	->children()
 					        	->scalarNode(AzineHybridAuthExtension::KEY)->cannotBeEmpty()->end()
