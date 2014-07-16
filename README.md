@@ -107,7 +107,7 @@ azine_hybrid_auth:
             keys:
                 key: %xing_api_consumer_key%
                 secret: %xing_api_secret%
-        LinkedIn:
+        linkedin:
             enabled: true
             scope: "r_ basicprofile, r_network"
             keys:

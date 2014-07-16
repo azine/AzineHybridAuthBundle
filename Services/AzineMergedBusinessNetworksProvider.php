@@ -26,10 +26,33 @@ class AzineMergedBusinessNetworksProvider {
 	 */
 	private $session;
 
+	/**
+	 * @var array of provider ids
+	 */
+	private $providers;
 
-	public function __construct(AzineHybridAuth $hybridAuth, Session $session){
+	/**
+	 * @var array of provider ids that are loaded already
+	 */
+	private $loadedProviders;
+
+	/**
+	 * @var string
+	 */
+	const CONTACTS_SESSION_NAME = "hybrid_auth_contacts";
+	const LOADED_PROVIDERS_NAME = "hybrid_auth_loaded_providers";
+
+	/**
+	 * Get the contacts from all configured providers
+	 * @param AzineHybridAuth $hybridAuth
+	 * @param Session $session
+	 * @param array $providers
+	 */
+	public function __construct(AzineHybridAuth $hybridAuth, Session $session, $providers){
 		$this->hybridAuth = $hybridAuth;
-		$this->contacts = $session->get("business_contacts", array());
+		$this->contacts = array(); //$session->get(self::CONTACTS_SESSION_NAME, array());
+		$this->loadedProviders = array(); //$session->get(self::LOADED_PROVIDERS_NAME, array());
+		$this->providers = array_keys($providers);
 		$this->session = $session;
 	}
 
@@ -38,9 +61,9 @@ class AzineMergedBusinessNetworksProvider {
 	 * @param int $pageSize
 	 * @param int $offest
 	 */
-	public function getContactProfiles($pageSize = 50, $offset = 0){
-		// check if we need to load more contacts
-		if(sizeof($this->contacts) == 0){
+	public function getContactProfiles($pageSize = 50, $offset = 0, $tryToConnect = false){
+		// check if the contacts are loaded already
+		if(sizeof($this->providers) != sizeof($this->loadedProviders)){
 			$this->getAllContacts();
 		}
 
@@ -49,19 +72,26 @@ class AzineMergedBusinessNetworksProvider {
 	}
 
 	/**
-	 * Fetch more contacts from xing and linkedin.
-	 * @param int $pageSize
-	 * @param int $offset
+	 * Fetch all contacts from the networks
 	 */
 	private function getAllContacts(){
-		$nextXi = $this->getXingContacts();
-		$nextLi = $this->getLinkedInContacts();
+		foreach ($this->providers as $provider){
+			if(!array_key_exists($provider, $this->loadedProviders) || sizeof($this->loadedProviders[$provider]) == 0){
+				$newContacts = $this->getUserContactsFor($provider);
+				$this->loadedProviders[$provider] = $newContacts;
+				$this->session->set(self::LOADED_PROVIDERS_NAME, $this->loadedProviders);
+				$this->session->save();
+			}
+		}
 
 		// merge and sort the old and new contacts
-		$this->contacts = $this->mergeContacts($nextXi, $nextLi);
-		usort($this->contacts, array($this, 'businessContactSorter'));
+		foreach ($this->loadedProviders as $provider => $contacts){
+			$this->contacts = $this->mergeContacts($this->contacts, $contacts);
+		}
 
-		$this->session->set("business_contacts", $this->contacts);
+		$this->contacts = $this->sortContacts($this->contacts);
+
+		$this->session->set(self::CONTACTS_SESSION_NAME, $this->contacts);
 		$this->session->save();
 	}
 
@@ -79,11 +109,52 @@ class AzineMergedBusinessNetworksProvider {
 		return array_merge($xingContacts, $linkedinContacts);
 	}
 
-	private static function businessContactSorter(UserContact $a, UserContact $b) {
+	/**
+	 * In this default implementation, all the contacts are sorted in
+	 * alphabetic order by their lastName.
+	 *
+	 * Comparison is done in the private static function firstLastNameContactSorter
+	 *
+	 * You can override both functions with your own logic as required.
+	 *
+	 * @param array of UserContact unsorted contacts
+	 * @return array of UserContact sorted contacts
+	 */
+	protected function sortContacts($contacts){
+		usort($contacts, array($this, 'firstLastNameContactSorter'));
+		return $contacts;
+	}
+
+	private static function firstLastNameContactSorter(UserContact $a, UserContact $b) {
 		return strnatcasecmp($a->lastName, $b->lastName);;
 	}
 
 
+	/**
+	 * Get ALL xing contacts of the current user
+	 * @throws Exception
+	 * @return multitype:\Azine\HybridAuthBundle\Entity\UserContact
+	 */
+	public function getUserContactsFor($provider){
+		if($provider == "Xing"){
+			return $this->getXingContacts();
+		} elseif ($provider == "LinkedIn"){
+			return $this->getLinkedInContacts();
+		}
+
+		$contacts = $this->hybridAuth->getProvider($provider)->getUserContacts();
+		$userContacts = array();
+		foreach ($contacts as $next){
+			$userContacts[] = new UserContact("", "", $next);
+		}
+		return $usersContacts;
+	}
+
+	/**
+	 * Get ALL xing contacts of the current user
+	 * @throws Exception
+	 * @return multitype:\Azine\HybridAuthBundle\Entity\UserContact
+	 */
 	public function getXingContacts(){
 		$api = $this->hybridAuth->getXingApi();
 		$fetchSize = 100;
@@ -93,13 +164,16 @@ class AzineMergedBusinessNetworksProvider {
 		try {
 			while ($fetchMore){
 				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,active_email&offset=$fetchOffset");
+				if(isset($oResponse->error_name)){
+					throw new \Exception($oResponse->error_name." : ".$oResponse->message);
+				}
 				$users = array_merge($users, $oResponse->contacts->users);
 				$fetchOffset = $fetchOffset + $fetchSize;
 				$fetchMore = $fetchSize == sizeof($oResponse->contacts->users);
 			}
 		}
-		catch(Exception $e) {
-			throw new Exception('Could not fetch contacts. ' . $this->providerId . ' returned an error: ' . $e . '.');
+		catch(\Exception $e) {
+			throw new \Exception('Could not fetch contacts. Xing returned an error.', $e->getCode(), $e);
 		}
 
 
@@ -109,8 +183,8 @@ class AzineMergedBusinessNetworksProvider {
 			$oContact = new UserContact();
 			$oContact->identifier	= (property_exists($aTitle, 'id'))          	? $aTitle->id           : '';
 			$oContact->profileURL	= (property_exists($aTitle, 'permalink'))   	? $aTitle->permalink    : '';
-			$oContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name : '';
-			$oContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name : '';
+			$oContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name 	: '';
+			$oContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name 	: '';
 			$oContact->displayName	= $oContact->firstName." ".$oContact->lastName;
 			$oContact->description	= (property_exists($aTitle, 'interests'))   	? $aTitle->interests    : '';
 			$oContact->email		= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
@@ -142,11 +216,13 @@ class AzineMergedBusinessNetworksProvider {
 		}
 
 		return $aContacts;
-
-
-
 	}
 
+	/**
+	 * Get ALL linkedin contacts of the current user
+	 * @throws Exception
+	 * @return multitype:\Azine\HybridAuthBundle\Entity\UserContact
+	 */
 	public function getLinkedInContacts(){
 		$api = $this->hybridAuth->getLinkedInApi();
 		$fetchSize = 500;
@@ -166,7 +242,7 @@ class AzineMergedBusinessNetworksProvider {
 			}
 		}
 		catch( \LinkedInException $e ){
-			throw new Exception( "User contacts request failed! {$this->providerId} returned an error: $e" );
+			throw new Exception( "User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e );
 		}
 
 

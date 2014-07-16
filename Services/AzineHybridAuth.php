@@ -41,17 +41,27 @@ class AzineHybridAuth {
 	 * When logged (allready) it will return the hybridAuth provider.
 	 *
 	 * @param string $provider_id
-	 * @return Hybrid_Provider_Adapter
+	 * @param boolean $require_login
+	 * @return \Hybrid_Provider_Model
 	 */
-	public function getProvider($provider_id){
+	public function getProvider($provider_id, $require_login = true){
 		$adapter = $this->hybridAuth->getAdapter($provider_id);
-		if(!$adapter->isUserConnected()){
+		if($require_login && !$adapter->isUserConnected()){
 			$adapter->login();
 		}
 		return $adapter;
 	}
 
-
+	/**
+	 * Check if the current user has allowed access to the given provider
+	 * @param string $provider_id
+	 * @return boolean true if access to the provider is granted for this app.
+	 */
+	public function isConnected($provider_id){
+		$adapter = $this->hybridAuth->getAdapter($provider_id);
+		$connected = $adapter->isUserConnected();
+		return $connected;
+	}
 
     /**
      * Get the Xing Adapter

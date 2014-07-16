@@ -2,37 +2,27 @@
 azine_hybrid_auth_endpoint:
     pattern:  /endpoint
     defaults: { _controller: "AzineHybridAuthBundle:HybridEndPoint:process" }
-    
-# Merged Xing and LinkedIn results
-azine_all_merged_business_contacts:
-    pattern:   /all/contacts/{pageSize}/{offset}
-    defaults: { _controller: "AzineHybridAuthBundle:BusinessContacts:mergedContacts", pageSize: 50, offset: 0}
-    
-# Xing api-access    
-azine_hybrid_auth_xing_profile:
-    pattern:  /xing/profile
-    defaults: { _controller: "AzineHybridAuthBundle:Xing:profile" }
 
-azine_hybrid_auth_xing_contacts:
-    pattern:  /xing/contacts
-    defaults: { _controller: "AzineHybridAuthBundle:Xing:contacts" }
-    
-azine_hybrid_auth_xing_api:
-    pattern:  /xing/api
-    defaults: { _controller: "AzineHybridAuthBundle:Xing:api" }
-    
-# LinkedIn api-access
-azine_hybrid_auth_linkedin_profile:
-    pattern:  /linkedin/profile
-    defaults: { _controller: "AzineHybridAuthBundle:Linkedin:profile" }
+# connect user to provider    
+azine_hybrid_auth_connect_user:
+    pattern:   /connect/to/{provider}
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:connectUser"}
 
-azine_hybrid_auth_linkedin_contacts:
-    pattern:  /linkedin/contacts
-    defaults: { _controller: "AzineHybridAuthBundle:Linkedin:contacts" }
-    
-azine_hybrid_auth_linkedin_api:
-    pattern:  /linkedin/api
-    defaults: { _controller: "AzineHybridAuthBundle:Linkedin:api" }
-    
-    
+# Json request queries
+azine_hybrid_auth_is_connected:
+    pattern:   /is/connected/to/{provider}
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:isConnected"}
 
+azine_hybrid_auth_merged_contacts:
+    pattern:   /merged/contacts/{pageSize}/{offset}
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:mergedContacts", pageSize: 50, offset: 0}
+        
+azine_hybrid_auth_user_profile:
+    pattern:  /{provider}/profile
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profile" }
+
+azine_hybrid_auth_contacts:
+    pattern:  /{provider}/contacts
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:contacts" }
+    
+    

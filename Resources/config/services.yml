@@ -20,5 +20,6 @@ services:
         arguments:
             hybridAuth: "@azine_hybrid_auth_service" 
             session: "@session"
+            providers: "%azine_hybrid_auth_providers%"
             
     
