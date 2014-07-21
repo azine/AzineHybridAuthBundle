@@ -50,8 +50,8 @@ class AzineMergedBusinessNetworksProvider {
 	 */
 	public function __construct(AzineHybridAuth $hybridAuth, Session $session, $providers){
 		$this->hybridAuth = $hybridAuth;
-		$this->contacts = array(); //$session->get(self::CONTACTS_SESSION_NAME, array());
-		$this->loadedProviders = array(); //$session->get(self::LOADED_PROVIDERS_NAME, array());
+		$this->contacts = $session->get(self::CONTACTS_SESSION_NAME, array());
+		$this->loadedProviders = $session->get(self::LOADED_PROVIDERS_NAME, array());
 		$this->providers = array_keys($providers);
 		$this->session = $session;
 	}
@@ -142,10 +142,16 @@ class AzineMergedBusinessNetworksProvider {
 			return $this->getLinkedInContacts();
 		}
 
-		$contacts = $this->hybridAuth->getProvider($provider)->getUserContacts();
 		$userContacts = array();
-		foreach ($contacts as $next){
-			$userContacts[] = new UserContact("", "", $next);
+		foreach ($this->hybridAuth->getProvider($provider)->getUserContacts() as $next){
+			$nextContact = new UserContact();
+			$nextContact->identifier	= $next->identifier;
+			$nextContact->profileURL	= $next->profileURL;
+			$nextContact->firstName 	= $next->firstName;
+			$nextContact->lastName		= $next->lastName;
+			$nextContact->displayName	= $nextContact->firstName." ".$nextContact->lastName;
+			$nextContact->description	= $next->description;
+			$nextContact->email			= $next->email;
 		}
 		return $usersContacts;
 	}
@@ -178,30 +184,30 @@ class AzineMergedBusinessNetworksProvider {
 
 
 		// Create the contacts array.
-		$aContacts = array();
+		$xingContacts = array();
 		foreach($users as $aTitle) {
-			$oContact = new UserContact();
-			$oContact->identifier	= (property_exists($aTitle, 'id'))          	? $aTitle->id           : '';
-			$oContact->profileURL	= (property_exists($aTitle, 'permalink'))   	? $aTitle->permalink    : '';
-			$oContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name 	: '';
-			$oContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name 	: '';
-			$oContact->displayName	= $oContact->firstName." ".$oContact->lastName;
-			$oContact->description	= (property_exists($aTitle, 'interests'))   	? $aTitle->interests    : '';
-			$oContact->email		= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
+			$nextContact = new UserContact();
+			$nextContact->identifier	= (property_exists($aTitle, 'id'))          	? $aTitle->id           : '';
+			$nextContact->profileURL	= (property_exists($aTitle, 'permalink'))   	? $aTitle->permalink    : '';
+			$nextContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name 	: '';
+			$nextContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name 	: '';
+			$nextContact->displayName	= $nextContact->firstName." ".$nextContact->lastName;
+			$nextContact->description	= (property_exists($aTitle, 'interests'))   	? $aTitle->interests    : '';
+			$nextContact->email		= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
 
 			// My own priority: Homepage, blog, other, something else.
 			if (property_exists($aTitle, 'web_profiles')) {
-				$oContact->webSiteURL = (property_exists($aTitle->web_profiles, 'homepage')) ? $aTitle->web_profiles->homepage[0] : null;
-				if (null === $oContact->webSiteURL) {
-					$oContact->webSiteURL = (property_exists($aTitle->web_profiles, 'blog')) ? $aTitle->web_profiles->blog[0] : null;
+				$nextContact->webSiteURL = (property_exists($aTitle->web_profiles, 'homepage')) ? $aTitle->web_profiles->homepage[0] : null;
+				if (null === $nextContact->webSiteURL) {
+					$nextContact->webSiteURL = (property_exists($aTitle->web_profiles, 'blog')) ? $aTitle->web_profiles->blog[0] : null;
 				}
-				if (null === $oContact->webSiteURL) {
-					$oContact->webSiteURL = (property_exists($aTitle->web_profiles, 'other')) ? $aTitle->web_profiles->other[0] : null;
+				if (null === $nextContact->webSiteURL) {
+					$nextContact->webSiteURL = (property_exists($aTitle->web_profiles, 'other')) ? $aTitle->web_profiles->other[0] : null;
 				}
 				// Just use *anything*!
-				if (null === $oContact->webSiteURL) {
+				if (null === $nextContact->webSiteURL) {
 					foreach ($aTitle->web_profiles as $aUrl) {
-						$oContact->webSiteURL = $aUrl[0];
+						$nextContact->webSiteURL = $aUrl[0];
 						break;
 					}
 				}
@@ -209,13 +215,13 @@ class AzineMergedBusinessNetworksProvider {
 
 			// We use the largest picture available.
 			if (property_exists($aTitle, 'photo_urls') && property_exists($aTitle->photo_urls, 'large')) {
-				$oContact->photoURL = (property_exists($aTitle->photo_urls, 'large')) ? $aTitle->photo_urls->large : '';
+				$nextContact->photoURL = (property_exists($aTitle->photo_urls, 'large')) ? $aTitle->photo_urls->large : '';
 			}
 
-			$aContacts[] = $oContact;
+			$xingContacts[] = $nextContact;
 		}
 
-		return $aContacts;
+		return $xingContacts;
 	}
 
 	/**
@@ -246,7 +252,7 @@ class AzineMergedBusinessNetworksProvider {
 		}
 
 
-		$contacts = ARRAY();
+		$contacts = array();
 
 		foreach( $users as $connection ) {
 			$uc = new UserContact();

@@ -5,7 +5,7 @@ azine_hybrid_auth_endpoint:
 
 # connect user to provider    
 azine_hybrid_auth_connect_user:
-    pattern:   /connect/to/{provider}
+    pattern:   /connect/to/{provider}/{callbackRoute}
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:connectUser"}
 
 # Json request queries
