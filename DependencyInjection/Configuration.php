@@ -47,8 +47,11 @@ class Configuration implements ConfigurationInterface
 				        ->end() // keys
 					->end() //children
 				->end() // prototype
-			->end(); // array
-
+			->end() // array
+			->scalarNode(AzineHybridAuthExtension::MERGER)->defaultValue("Azine\HybridAuthBundle\Services\AzineContactMerger")->end()
+			->scalarNode(AzineHybridAuthExtension::SORTER)->defaultValue("Azine\HybridAuthBundle\Services\AzineContactSorter")->end()
+			;
+			
         return $treeBuilder;
     }
 }

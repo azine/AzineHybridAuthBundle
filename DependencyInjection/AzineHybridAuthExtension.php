@@ -31,6 +31,8 @@ class AzineHybridAuthExtension extends Extension {
 	const WRAPPER = "wrapper";
 	const WRAPPER_PATH = "path";
 	const WRAPPER_CLASS = "class";
+	const SORTER = "contact_sorter";
+	const MERGER = "contact_merger";
 
 
     /**
@@ -44,8 +46,10 @@ class AzineHybridAuthExtension extends Extension {
         $container->setParameter(self::PREFIX."_".self::ENDPOINT_ROUTE,	$config[self::ENDPOINT_ROUTE]);
         $container->setParameter(self::PREFIX."_".self::DEBUG, 			$config[self::DEBUG]);
         $container->setParameter(self::PREFIX."_".self::DEBUG_FILE,		$config[self::DEBUG_FILE]);
-        $container->setParameter(self::PREFIX."_".self::PROVIDERS,			$config[self::PROVIDERS]);
-
+        $container->setParameter(self::PREFIX."_".self::PROVIDERS,		$config[self::PROVIDERS]);
+        $container->setParameter(self::PREFIX."_".self::SORTER."_class",$config[self::SORTER]);
+        $container->setParameter(self::PREFIX."_".self::MERGER."_class",$config[self::MERGER]);
+        
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
     }

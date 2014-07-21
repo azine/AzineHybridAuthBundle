@@ -35,6 +35,16 @@ class AzineMergedBusinessNetworksProvider {
 	 * @var array of provider ids that are loaded already
 	 */
 	private $loadedProviders;
+	
+	/**
+	 * @var ContactSorter
+	 */
+	private $sorter;
+	
+	/**
+	 * @var ContactMerger
+	 */
+	private $merger;
 
 	/**
 	 * @var string
@@ -48,8 +58,10 @@ class AzineMergedBusinessNetworksProvider {
 	 * @param Session $session
 	 * @param array $providers
 	 */
-	public function __construct(AzineHybridAuth $hybridAuth, Session $session, $providers){
+	public function __construct(AzineHybridAuth $hybridAuth, Session $session, ContactSorter $sorter, ContactMerger $merger, array $providers){
 		$this->hybridAuth = $hybridAuth;
+		$this->sorter = $sorter;
+		$this->merger = $merger;
 		$this->contacts = $session->get(self::CONTACTS_SESSION_NAME, array());
 		$this->loadedProviders = $session->get(self::LOADED_PROVIDERS_NAME, array());
 		$this->providers = array_keys($providers);
@@ -84,51 +96,15 @@ class AzineMergedBusinessNetworksProvider {
 			}
 		}
 
-		// merge and sort the old and new contacts
-		foreach ($this->loadedProviders as $provider => $contacts){
-			$this->contacts = $this->mergeContacts($this->contacts, $contacts);
-		}
+		// merge the old and new contacts
+		$this->contacts = $this->merger->merge($this->contacts, $this->loadedProviders);
 
-		$this->contacts = $this->sortContacts($this->contacts);
+		// sort all contacts
+		usort($this->contacts, array($this->sorter, 'compare'));
 
 		$this->session->set(self::CONTACTS_SESSION_NAME, $this->contacts);
 		$this->session->save();
 	}
-
-	/**
-	 * In this default implementation, all the contacts are just shared in one list, no
-	 * merging of duplicates is done.
-	 *
-	 * You can override this with your own logic as required.
-	 *
-	 * @param array of UserContact $xingContacts
-	 * @param array of UserContact $linkedinContacts
-	 * @return array of UserContact
-	 */
-	protected function mergeContacts($xingContacts, $linkedinContacts){
-		return array_merge($xingContacts, $linkedinContacts);
-	}
-
-	/**
-	 * In this default implementation, all the contacts are sorted in
-	 * alphabetic order by their lastName.
-	 *
-	 * Comparison is done in the private static function firstLastNameContactSorter
-	 *
-	 * You can override both functions with your own logic as required.
-	 *
-	 * @param array of UserContact unsorted contacts
-	 * @return array of UserContact sorted contacts
-	 */
-	protected function sortContacts($contacts){
-		usort($contacts, array($this, 'firstLastNameContactSorter'));
-		return $contacts;
-	}
-
-	private static function firstLastNameContactSorter(UserContact $a, UserContact $b) {
-		return strnatcasecmp($a->lastName, $b->lastName);;
-	}
-
 
 	/**
 	 * Get ALL xing contacts of the current user
