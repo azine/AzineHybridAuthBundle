@@ -117,7 +117,10 @@ class HybridEndPointController extends Controller {
 	 */
 	private function processAuthStart() {
 
-		$this->authInit();
+		$response = $this->authInit();
+		if($response instanceof Response){
+			return $response;
+		}
 
 		$provider_id = trim( strip_tags( $this->requestQuery->get("hauth_start") ) );
 
@@ -175,11 +178,12 @@ class HybridEndPointController extends Controller {
 
 			$hauth->adapter->loginFinish();
 		}
-		catch( Exception $e ){
-			\Hybrid_Logger::error( "Exception:" . $e->getMessage(), $e );
+		catch( \Exception $e ){
+			\Hybrid_Logger::error( "Exception:" . $e->getMessage()."\n\n".$e->getTraceAsString() );
 			\Hybrid_Error::setError( $e->getMessage(), $e->getCode(), $e->getTraceAsString(), $e->getPrevious());
 
 			$hauth->adapter->setUserUnconnected();
+			
 		}
 
 		\Hybrid_Logger::info( "Endpoint: job done. retrun to callback url." );
@@ -207,7 +211,7 @@ class HybridEndPointController extends Controller {
 
 				$this->hybridAuth->initialize( $storage->config( "CONFIG" ) );
 			}
-			catch ( Exception $e ){
+			catch ( \Exception $e ){
 				\Hybrid_Logger::error( "Endpoint: Error while trying to init Hybrid_Auth" );
 
 				return new Response("Oophs. Error!", 500, array(header( "HTTP/1.0 500 Server Error" )));

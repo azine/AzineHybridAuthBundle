@@ -25,8 +25,12 @@ class AzineHybridAuthJsonController extends Controller {
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function isConnectedAction(Request $request, $provider){
-    	$connected = $this->getAzineHybridAuthService()->isConnected($provider);
-    	return new JsonResponse(array('connected' => $connected));
+    	try {
+	    	$connected = $this->getAzineHybridAuthService()->isConnected($provider);
+	    	return new JsonResponse(array('connected' => $connected));
+    	} catch (\Exception $e) {
+    		return new JsonResponse(array('connected' => false, 'message' => $e->getMessage()."\n\n\n".$e->getTraceAsString()));
+    	}    	
     }
 
     /**
@@ -34,10 +38,15 @@ class AzineHybridAuthJsonController extends Controller {
      * @param Request $request
      * @param string $provider
      */
-    public function connectUserAction(Request $request, $provider){
-    	$hybridAuth = $this->getAzineHybridAuthService()->getInstance();
+    public function connectUserAction(Request $request, $provider, $callbackRoute = null){
+       	try {
+	    	$hybridAuth = $this->getAzineHybridAuthService()->getInstance();
+	    	$connected = $hybridAuth->isConnectedWith($provider);
+    	} catch (\Exception $e) {
+    		return new RedirectResponse($this->generateUrl($callbackRoute));
+    	}    	
 
-    	if(!$hybridAuth->isConnectedWith($provider)){
+    	if(!$connected){
     		try {
     			$adapter = $hybridAuth->getAdapter($provider);
     			$adapter->login();
@@ -45,9 +54,14 @@ class AzineHybridAuthJsonController extends Controller {
     			throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
     		}
     	} else {
-    		return new JsonResponse(array('connected' => true));
+   			$callbackUrl = $this->generateUrl($callbackRoute);
+    		if(!$callbackUrl){
+    			throw new \Exception("Callback route not defined");
+    		}
+    		return new RedirectResponse($callbackUrl);
     	}
     }
+
 
     /**
      * Get the users Profile for the requested provider
