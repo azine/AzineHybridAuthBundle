@@ -47,6 +47,11 @@ class AzineMergedBusinessNetworksProvider {
 	private $merger;
 
 	/**
+	 * @var GenderGuesser
+	 */
+	private $genderGuesser;
+
+	/**
 	 * @var string
 	 */
 	const CONTACTS_SESSION_NAME = "hybrid_auth_contacts";
@@ -58,7 +63,7 @@ class AzineMergedBusinessNetworksProvider {
 	 * @param Session $session
 	 * @param array $providers
 	 */
-	public function __construct(AzineHybridAuth $hybridAuth, Session $session, ContactSorter $sorter, ContactMerger $merger, array $providers){
+	public function __construct(AzineHybridAuth $hybridAuth, Session $session, ContactSorter $sorter, ContactMerger $merger, GenderGuesser $genderGuesser, array $providers){
 		$this->hybridAuth = $hybridAuth;
 		$this->sorter = $sorter;
 		$this->merger = $merger;
@@ -66,6 +71,7 @@ class AzineMergedBusinessNetworksProvider {
 		$this->loadedProviders = $session->get(self::LOADED_PROVIDERS_NAME, array());
 		$this->providers = array_keys($providers);
 		$this->session = $session;
+		$this->genderGuesser = $genderGuesser;
 	}
 
 	/**
@@ -88,7 +94,8 @@ class AzineMergedBusinessNetworksProvider {
 	 */
 	private function getAllContacts(){
 		foreach ($this->providers as $provider){
-			if(!array_key_exists($provider, $this->loadedProviders) || sizeof($this->loadedProviders[$provider]) == 0){
+			$connected = $this->hybridAuth->getProvider($provider, false)->isUserConnected();
+			if($connected && (!array_key_exists($provider, $this->loadedProviders) || sizeof($this->loadedProviders[$provider]) == 0)){
 				$newContacts = $this->getUserContactsFor($provider);
 				$this->loadedProviders[$provider] = $newContacts;
 				$this->session->set(self::LOADED_PROVIDERS_NAME, $this->loadedProviders);
@@ -97,7 +104,7 @@ class AzineMergedBusinessNetworksProvider {
 		}
 
 		// merge the old and new contacts
-		$this->contacts = $this->merger->merge($this->contacts, $this->loadedProviders);
+		$this->contacts = $this->merger->merge($this->loadedProviders);
 
 		// sort all contacts
 		usort($this->contacts, array($this->sorter, 'compare'));
@@ -120,7 +127,7 @@ class AzineMergedBusinessNetworksProvider {
 
 		$userContacts = array();
 		foreach ($this->hybridAuth->getProvider($provider)->getUserContacts() as $next){
-			$nextContact = new UserContact();
+			$nextContact = new UserContact($provider);
 			$nextContact->identifier	= $next->identifier;
 			$nextContact->profileURL	= $next->profileURL;
 			$nextContact->firstName 	= $next->firstName;
@@ -145,7 +152,7 @@ class AzineMergedBusinessNetworksProvider {
 		$users = array();
 		try {
 			while ($fetchMore){
-				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,active_email&offset=$fetchOffset");
+				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email&offset=$fetchOffset");
 				if(isset($oResponse->error_name)){
 					throw new \Exception($oResponse->error_name." : ".$oResponse->message);
 				}
@@ -162,14 +169,16 @@ class AzineMergedBusinessNetworksProvider {
 		// Create the contacts array.
 		$xingContacts = array();
 		foreach($users as $aTitle) {
-			$nextContact = new UserContact();
+			$nextContact = new UserContact("Xing");
 			$nextContact->identifier	= (property_exists($aTitle, 'id'))          	? $aTitle->id           : '';
 			$nextContact->profileURL	= (property_exists($aTitle, 'permalink'))   	? $aTitle->permalink    : '';
 			$nextContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name 	: '';
 			$nextContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name 	: '';
 			$nextContact->displayName	= $nextContact->firstName." ".$nextContact->lastName;
 			$nextContact->description	= (property_exists($aTitle, 'interests'))   	? $aTitle->interests    : '';
-			$nextContact->email		= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
+			$nextContact->email			= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
+			$nextContact->gender		= (property_exists($aTitle, 'gender'))			? $aTitle->gender : '';
+				
 
 			// My own priority: Homepage, blog, other, something else.
 			if (property_exists($aTitle, 'web_profiles')) {
@@ -231,21 +240,41 @@ class AzineMergedBusinessNetworksProvider {
 		$contacts = array();
 
 		foreach( $users as $connection ) {
-			$uc = new UserContact();
+			$uc = new UserContact("LinkedIn");
 
 			$uc->identifier  = (string) $connection->id;
 			$uc->firstName = (string) $connection->{'first-name'};
 			$uc->lastName = (string) $connection->{'last-name'};
 			$uc->displayName = (string) $connection->{'first-name'} . " " . $connection->{'last-name'};
-			$uc->profileURL  = (string) $connection->{'public-profile-url'};
+			$uc->profileURL  = (string) $connection->{'site-standard-profile-request'};
 			$uc->photoURL    = (string) $connection->{'picture-url'};
 			$uc->description = (string) $connection->{'summary'};
+			$uc->gender 	 = $this->genderGuesser->guess($uc->firstName);
 
 			$contacts[] = $uc;
 		}
 
 		return $contacts;
 	}
-
-
+	
+	/**
+	 * Get the basic profile of the current users contact with the given user id.
+	 * @param string $provider
+	 * @param string $contactId
+	 * @return UserContact
+	 */
+	public function getUserContactBasicProfile($provider, $contactId){
+		if(!array_key_exists($provider, $this->loadedProviders)){
+			$this->loadedProviders[$provider] = $this->getUserContactsFor($provider);
+			$this->session->set(self::LOADED_PROVIDERS_NAME, $this->loadedProviders);
+			$this->session->save();
+		}
+		
+		foreach ($this->loadedProviders[$provider] as $userContact){
+			if($userContact->identifier == $contactId){
+				return $userContact;
+			}
+		}
+		return null;
+	}
 }

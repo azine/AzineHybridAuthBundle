@@ -16,6 +16,9 @@ class UserContact {
 	/* URL link to user photo or avatar */
 	public $photoURL = NULL;
 	
+	/* Gender */
+	public $gender = null;
+	
 	/* The users last name */
 	public $firstName = null;
 
@@ -31,8 +34,12 @@ class UserContact {
 	/* User email. Not all of IDp grant access to the user email */
 	public $email = NULL;
 	
+	/* Prvider id */
+	public $provider = NULL;
 	
-	public function __construct($firstName = null, 
+	public function __construct($provider,
+								$gender = null,
+								$firstName = null, 
 								$lastName = null,
 								$identifier = null, 
 								$webSiteURL = null, 
@@ -41,6 +48,7 @@ class UserContact {
 								$description = null, 
 								$email = null
 							){
+		$this->provider = $provider;
 		$this->firstName = $firstName;
 		$this->lastName = $lastName;
 	    $this->identifier = $identifier;

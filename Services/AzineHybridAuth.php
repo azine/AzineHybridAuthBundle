@@ -62,8 +62,8 @@ class AzineHybridAuth {
 		$connected = $adapter->isUserConnected();
 		return $connected;
 	}
-
-    /**
+	
+	/**
      * Get the Xing Adapter
      * @return \Hybrid_Providers_XING
      */
