@@ -25,4 +25,10 @@ azine_hybrid_auth_contacts:
     pattern:  /{provider}/contacts
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:contacts" }
     
+azine_hybrid_auth_contact_profile:
+    pattern:  /{provider}/profile/{userId}
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profile" }
+    
+    
+    
     
