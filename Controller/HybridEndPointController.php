@@ -146,10 +146,20 @@ class HybridEndPointController extends Controller {
 
 			$hauth->adapter->loginBegin();
 		}
-		catch ( Exception $e ) {
-			\Hybrid_Logger::error( "Exception:" . $e->getMessage(), $e );
-			\Hybrid_Error::setError( $e->getMessage(), $e->getCode(), $e->getTraceAsString(), $e->getPrevious() );
-
+		catch ( \Exception $e ) {
+			$logger = $this->get("logger");
+			$logger->error("Exception:  Code: " . $e->getCode() . "; Message: " . $e->getMessage(), $e->getTrace());
+			if($e->getPrevious() != null && $e->getPrevious() != $e){
+				$p = $e->getPrevious();
+				$logger->error("Exception:  Code: " . $p->getCode() . "; Message: " . $p->getMessage(), $p->getTrace());
+			}
+			// replace the callback_url with the referrer.
+			if(isset($_SERVER['HTTP_REFERER'])){
+				$this->hybridAuth->storage()->set( "hauth_session.$provider_id.hauth_return_to", $_SERVER['HTTP_REFERER'] );
+			} else {
+				// or go back in the browser-history via js
+				return new Response("<html><body onload='window.history.back();'><h1>An Error occured.</h1>Going back one step in the browser history.</body></html>", 500);				
+			}
 		}
 		return $this->returnToCallbackUrl($provider_id);
 	}
