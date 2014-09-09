@@ -22,10 +22,14 @@ services:
             session: "@session"
             sorter: "@azine_hybrid_auth_contact_sorter"
             merger: "@azine_hybrid_auth_contact_merger"
+            genderGuesser: "@azine_hybrid_auth_gender_guesser"
             providers: "%azine_hybrid_auth_providers%"
             
     azine_hybrid_auth_contact_sorter:
         class: %azine_hybrid_auth_contact_sorter_class%
     
     azine_hybrid_auth_contact_merger:
-        class: %azine_hybrid_auth_contact_merger_class%
+        class: %azine_hybrid_auth_contact_merger_class% 
+ 
+    azine_hybrid_auth_gender_guesser:
+        class: Azine\HybridAuthBundle\Services\AzineGenderGuesser
