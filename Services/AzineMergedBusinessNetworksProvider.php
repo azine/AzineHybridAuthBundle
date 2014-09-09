@@ -152,7 +152,7 @@ class AzineMergedBusinessNetworksProvider {
 		$users = array();
 		try {
 			while ($fetchMore){
-				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email&offset=$fetchOffset");
+				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email,professional_experience&offset=$fetchOffset");
 				if(isset($oResponse->error_name)){
 					throw new \Exception($oResponse->error_name." : ".$oResponse->message);
 				}
@@ -168,30 +168,38 @@ class AzineMergedBusinessNetworksProvider {
 
 		// Create the contacts array.
 		$xingContacts = array();
-		foreach($users as $aTitle) {
+		foreach($users as $connection) {
 			$nextContact = new UserContact("Xing");
-			$nextContact->identifier	= (property_exists($aTitle, 'id'))          	? $aTitle->id           : '';
-			$nextContact->profileURL	= (property_exists($aTitle, 'permalink'))   	? $aTitle->permalink    : '';
-			$nextContact->firstName 	= (property_exists($aTitle, 'first_name'))		? $aTitle->first_name 	: '';
-			$nextContact->lastName		= (property_exists($aTitle, 'last_name')) 		? $aTitle->last_name 	: '';
+			$nextContact->identifier	= (property_exists($connection, 'id'))          	? $connection->id           : '';
+			$nextContact->profileURL	= (property_exists($connection, 'permalink'))   	? $connection->permalink    : '';
+			$nextContact->firstName 	= (property_exists($connection, 'first_name'))		? $connection->first_name 	: '';
+			$nextContact->lastName		= (property_exists($connection, 'last_name')) 		? $connection->last_name 	: '';
 			$nextContact->displayName	= $nextContact->firstName." ".$nextContact->lastName;
-			$nextContact->description	= (property_exists($aTitle, 'interests'))   	? $aTitle->interests    : '';
-			$nextContact->email			= (property_exists($aTitle, 'active_email'))	? $aTitle->active_email : '';
-			$nextContact->gender		= (property_exists($aTitle, 'gender'))			? $aTitle->gender : '';
-				
+			$nextContact->description	= (property_exists($connection, 'interests'))   	? $connection->interests    : '';
+			$nextContact->email			= (property_exists($connection, 'active_email'))	? $connection->active_email : '';
+			$nextContact->gender		= (property_exists($connection, 'gender'))			? $connection->gender : '';
+			
+			// headline title @ company
+			if(property_exists($connection, 'professional_experience')){
+				$jobTitle = $connection->professional_experience->primary_company->title;
+				$company = $connection->professional_experience->primary_company->name;
+				$nextContact->headline = $jobTitle . " @ " . $company;
+			} else {
+				$nextContact->headline	= "";
+			}			
 
 			// My own priority: Homepage, blog, other, something else.
-			if (property_exists($aTitle, 'web_profiles')) {
-				$nextContact->webSiteURL = (property_exists($aTitle->web_profiles, 'homepage')) ? $aTitle->web_profiles->homepage[0] : null;
+			if (property_exists($connection, 'web_profiles')) {
+				$nextContact->webSiteURL = (property_exists($connection->web_profiles, 'homepage')) ? $connection->web_profiles->homepage[0] : null;
 				if (null === $nextContact->webSiteURL) {
-					$nextContact->webSiteURL = (property_exists($aTitle->web_profiles, 'blog')) ? $aTitle->web_profiles->blog[0] : null;
+					$nextContact->webSiteURL = (property_exists($connection->web_profiles, 'blog')) ? $connection->web_profiles->blog[0] : null;
 				}
 				if (null === $nextContact->webSiteURL) {
-					$nextContact->webSiteURL = (property_exists($aTitle->web_profiles, 'other')) ? $aTitle->web_profiles->other[0] : null;
+					$nextContact->webSiteURL = (property_exists($connection->web_profiles, 'other')) ? $connection->web_profiles->other[0] : null;
 				}
 				// Just use *anything*!
 				if (null === $nextContact->webSiteURL) {
-					foreach ($aTitle->web_profiles as $aUrl) {
+					foreach ($connection->web_profiles as $aUrl) {
 						$nextContact->webSiteURL = $aUrl[0];
 						break;
 					}
@@ -199,8 +207,8 @@ class AzineMergedBusinessNetworksProvider {
 			}
 
 			// We use the largest picture available.
-			if (property_exists($aTitle, 'photo_urls') && property_exists($aTitle->photo_urls, 'large')) {
-				$nextContact->photoURL = (property_exists($aTitle->photo_urls, 'large')) ? $aTitle->photo_urls->large : '';
+			if (property_exists($connection, 'photo_urls') && property_exists($connection->photo_urls, 'large')) {
+				$nextContact->photoURL = (property_exists($connection->photo_urls, 'large')) ? $connection->photo_urls->large : '';
 			}
 
 			$xingContacts[] = $nextContact;
@@ -223,7 +231,7 @@ class AzineMergedBusinessNetworksProvider {
 
 		try{
 			while ($fetchMore){
-				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary)?start=$fetchOffset&count=$fetchSize");
+				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline)?start=$fetchOffset&count=$fetchSize");
 				$connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
 				foreach ($connectionsXml->person as $person){
 					$users[] = $person;
@@ -240,18 +248,21 @@ class AzineMergedBusinessNetworksProvider {
 		$contacts = array();
 
 		foreach( $users as $connection ) {
-			$uc = new UserContact("LinkedIn");
+			$nextContact = new UserContact("LinkedIn");
 
-			$uc->identifier  = (string) $connection->id;
-			$uc->firstName = (string) $connection->{'first-name'};
-			$uc->lastName = (string) $connection->{'last-name'};
-			$uc->displayName = (string) $connection->{'first-name'} . " " . $connection->{'last-name'};
-			$uc->profileURL  = (string) $connection->{'site-standard-profile-request'};
-			$uc->photoURL    = (string) $connection->{'picture-url'};
-			$uc->description = (string) $connection->{'summary'};
-			$uc->gender 	 = $this->genderGuesser->guess($uc->firstName);
+			$nextContact->identifier  = (string) $connection->id;
+			$nextContact->firstName = (string) $connection->{'first-name'};
+			$nextContact->lastName = (string) $connection->{'last-name'};
+			$nextContact->displayName = (string) $connection->{'first-name'} . " " . $connection->{'last-name'};
+			$nextContact->profileURL  = (string) $connection->{'site-standard-profile-request'};
+			$nextContact->photoURL    = (string) $connection->{'picture-url'};
+			$nextContact->description = (string) $connection->{'summary'};
+			$nextContact->gender 	 = $this->genderGuesser->gender($nextContact->firstName, 5);
 
-			$contacts[] = $uc;
+			$nextContact->headline	= (property_exists($connection, 'headline'))			? (string) $connection->headline : '';
+			$nextContact->headline = str_replace(" at ", " @ ", $nextContact->headline);
+			
+			$contacts[] = $nextContact;
 		}
 
 		return $contacts;

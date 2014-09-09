@@ -37,6 +37,9 @@ class UserContact {
 	/* Prvider id */
 	public $provider = NULL;
 	
+	/* For Xing & LinkedIn usually job-title @ main ompany */
+	public $headline = NULL;
+	
 	public function __construct($provider,
 								$gender = null,
 								$firstName = null, 
@@ -46,7 +49,8 @@ class UserContact {
 								$profileURL = null, 
 								$photoURL = null, 
 								$description = null, 
-								$email = null
+								$email = null,
+								$headline = null
 							){
 		$this->provider = $provider;
 		$this->firstName = $firstName;
@@ -58,6 +62,7 @@ class UserContact {
 		$this->displayName = $firstName." ".$lastName;
 		$this->description = $description;
 		$this->email = $email;
+		$this->headline = $headline;
 
 	}
 
