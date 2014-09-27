@@ -15,7 +15,7 @@ azine_hybrid_auth_is_connected:
 
 azine_hybrid_auth_merged_contacts:
     pattern:   /merged/contacts/{pageSize}/{offset}
-    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:mergedContacts", pageSize: 50, offset: 0}
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:mergedContacts", pageSize: 1000, offset: 0}
         
 azine_hybrid_auth_user_profile:
     pattern:  /{provider}/profile
