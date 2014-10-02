@@ -1,0 +1,9 @@
+# default-configurations
+imports:
+    - javascript
+    - php   
+    
+tools:
+    external_code_coverage:
+        timeout: 1200 # Timeout in seconds.
+    
