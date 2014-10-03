@@ -13,7 +13,6 @@ env:
 
 before_script:
     - ls -la /home/travis/build/azine/*
-    - ls -la /home/travis/build/azine/hybrid-auth-bundle/*
     - ls -la /home/travis/build/azine/Tests/*
 
     - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source --no-update
