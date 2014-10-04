@@ -1,5 +1,5 @@
 <?php
-namespace Azine\MailgunWebhooksBundle\Tests\Controller;
+namespace Azine\HybridAuthBundle\Tests\Controller;
 
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\Client;
