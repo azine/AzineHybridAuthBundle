@@ -1,5 +1,5 @@
 {
-    "name": "azine/hybrid-auth-bundle",
+    "name": "azine/hybridauth-bundle",
     "type": "symfony-bundle",
     "description": "Symfony2 bundle to access the profiles via Xing- and Linkedin-API, uses HybridAuth",
     "keywords": ["xing", "oauth", "xing api"],

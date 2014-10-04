@@ -21,7 +21,7 @@ To install AzineHybridAuthBundle with Composer just add the following to your `c
     // ...
     require: {
         // ...
-        "azine/hybrid-auth-bundle": "dev-master"
+        "azine/hybridauth-bundle": "dev-master"
     }
 }
 ```
@@ -143,10 +143,10 @@ user session.
 
 ## Build-Status ec.
 
-[![Build Status](https://travis-ci.org/azine/hybrid-auth-bundle.png)](https://travis-ci.org/azine/hybrid-auth-bundle)
-[![Total Downloads](https://poser.pugx.org/azine/hybrid-auth-bundle/downloads.png)](https://packagist.org/packages/azine/hybrid-auth-bundle)
-[![Latest Stable Version](https://poser.pugx.org/azine/hybrid-auth-bundle/v/stable.png)](https://packagist.org/packages/azine/hybrid-auth-bundle)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/hybrid-auth-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/hybrid-auth-bundle/)
-[![Code Coverage](https://scrutinizer-ci.com/g/azine/hybrid-auth-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/hybrid-auth-bundle/)
+[![Build Status](https://travis-ci.org/azine/hybridauth-bundle.png)](https://travis-ci.org/azine/hybridauth-bundle)
+[![Total Downloads](https://poser.pugx.org/azine/hybridauth-bundle/downloads.png)](https://packagist.org/packages/azine/hybridauth-bundle)
+[![Latest Stable Version](https://poser.pugx.org/azine/hybridauth-bundle/v/stable.png)](https://packagist.org/packages/azine/hybridauth-bundle)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/)
+[![Code Coverage](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/)
 
 
