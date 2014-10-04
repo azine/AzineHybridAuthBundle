@@ -12,14 +12,13 @@ env:
   - SYMFONY_VERSION=dev-master
 
 before_script:
-    - ls -la /home/travis/build/azine/*
-    - ls -la /home/travis/build/azine/Tests/*
-
-    - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source --no-update
-    - composer install --dev --prefer-source
+  - ls -a /home/travis/build/azine/* -R
+  - composer self-update
+  - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-source --no-update
+  - composer install --dev --prefer-source
 
 script:
-  - phpunit --coverage-text --coverage-clover=coverage.clover /home/travis/build/azine/
+  - phpunit --coverage-text --coverage-clover=coverage.clover /home/travis/build/azine/hybridauth-bundle/Test/
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
