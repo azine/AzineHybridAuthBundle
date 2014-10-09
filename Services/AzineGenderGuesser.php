@@ -76,7 +76,10 @@ class AzineGenderGuesser implements GenderGuesser {
 	
 	public function gender($firstName, $looseness=1){
 		$guess = $this->guess($firstName);
-		return array_key_exists('gender', $guess) ? $guess['gender'] : '';
+        if(is_array($guess)) {
+            return array_key_exists('gender', $guess) ? $guess['gender'] : '';
+        }
+        return '';
 	}
 	
 	public function guess($name, $looseness=1) {
