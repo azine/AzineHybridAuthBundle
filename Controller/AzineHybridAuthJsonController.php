@@ -54,7 +54,8 @@ class AzineHybridAuthJsonController extends Controller {
     			throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
     		}
     	} else {
-   			$callbackUrl = $this->generateUrl($callbackRoute);
+            $params = $request->query->all();
+   			$callbackUrl = $this->generateUrl($callbackRoute, $params);
     		if(!$callbackUrl){
     			throw new \Exception("Callback route not defined");
     		}
