@@ -48,8 +48,10 @@ class Configuration implements ConfigurationInterface
 					->end() //children
 				->end() // prototype
 			->end() // array
-			->scalarNode(AzineHybridAuthExtension::MERGER)->defaultValue("Azine\HybridAuthBundle\Services\AzineContactMerger")->end()
-			->scalarNode(AzineHybridAuthExtension::SORTER)->defaultValue("Azine\HybridAuthBundle\Services\AzineContactSorter")->end()
+            ->scalarNode(AzineHybridAuthExtension::FILTER)          ->defaultValue("azine_hybrid_auth_contact_filter_default")->end()
+			->scalarNode(AzineHybridAuthExtension::MERGER)          ->defaultValue("azine_hybrid_auth_contact_merger_default")->end()
+            ->scalarNode(AzineHybridAuthExtension::SORTER)          ->defaultValue("azine_hybrid_auth_contact_sorter_default")->end()
+            ->scalarNode(AzineHybridAuthExtension::GENDER_GUESSER)  ->defaultValue("azine_hybrid_auth_gender_guesser_default")->end()
 			;
 			
         return $treeBuilder;

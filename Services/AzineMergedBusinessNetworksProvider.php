@@ -63,7 +63,7 @@ class AzineMergedBusinessNetworksProvider {
 	 * @param Session $session
 	 * @param array $providers
 	 */
-	public function __construct(AzineHybridAuth $hybridAuth, Session $session, ContactSorter $sorter, ContactMerger $merger, GenderGuesser $genderGuesser, array $providers){
+	public function __construct(AzineHybridAuth $hybridAuth, Session $session, ContactSorter $sorter, ContactMerger $merger, GenderGuesser $genderGuesser, ContactFilter $contactFilter, array $providers){
 		$this->hybridAuth = $hybridAuth;
 		$this->sorter = $sorter;
 		$this->merger = $merger;
@@ -72,6 +72,7 @@ class AzineMergedBusinessNetworksProvider {
 		$this->providers = array_keys($providers);
 		$this->session = $session;
 		$this->genderGuesser = $genderGuesser;
+        $this->contactFilter = $contactFilter;
 	}
 
 	/**
@@ -79,14 +80,14 @@ class AzineMergedBusinessNetworksProvider {
 	 * @param int $pageSize
 	 * @param int $offest
 	 */
-	public function getContactProfiles($pageSize = 50, $offset = 0, $tryToConnect = false){
+	public function getContactProfiles($pageSize = 50, $offset = 0, $tryToConnect = false, $filterParams = array()){
 		// check if the contacts are loaded already
 		if(sizeof($this->providers) != sizeof($this->loadedProviders)){
 			$this->getAllContacts();
 		}
 
 		// return one page
-		return array_slice($this->contacts, $offset, $pageSize, true);
+		return array_slice($this->contactFilter->filter($this->contacts, $filterParams), $offset, $pageSize, true);
 	}
 
 	/**

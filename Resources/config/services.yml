@@ -18,18 +18,22 @@ services:
     azine_business_networks_provider_service:
         class:  Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider
         arguments:
-            hybridAuth: "@azine_hybrid_auth_service" 
-            session: "@session"
-            sorter: "@azine_hybrid_auth_contact_sorter"
-            merger: "@azine_hybrid_auth_contact_merger"
-            genderGuesser: "@azine_hybrid_auth_gender_guesser"
-            providers: "%azine_hybrid_auth_providers%"
+            hybridAuth:     "@azine_hybrid_auth_service"
+            session:        "@session"
+            sorter:         "@azine_hybrid_auth_contact_sorter"
+            merger:         "@azine_hybrid_auth_contact_merger"
+            genderGuesser:  "@azine_hybrid_auth_gender_guesser"
+            contactFilter:  "@azine_hybrid_auth_contact_filter"
+            providers:      "%azine_hybrid_auth_providers%"
             
-    azine_hybrid_auth_contact_sorter:
-        class: %azine_hybrid_auth_contact_sorter_class%
-    
-    azine_hybrid_auth_contact_merger:
-        class: %azine_hybrid_auth_contact_merger_class% 
- 
-    azine_hybrid_auth_gender_guesser:
+    azine_hybrid_auth_contact_filter_default:
+        class: Azine\HybridAuthBundle\Services\AzineContactFilter
+
+    azine_hybrid_auth_contact_merger_default:
+        class: Azine\HybridAuthBundle\Services\AzineContactMerger
+
+    azine_hybrid_auth_contact_sorter_default:
+        class: Azine\HybridAuthBundle\Services\AzineContactSorter
+
+    azine_hybrid_auth_gender_guesser_default:
         class: Azine\HybridAuthBundle\Services\AzineGenderGuesser

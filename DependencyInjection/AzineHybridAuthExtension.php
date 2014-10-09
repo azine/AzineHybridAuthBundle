@@ -33,6 +33,8 @@ class AzineHybridAuthExtension extends Extension {
 	const WRAPPER_CLASS = "class";
 	const SORTER = "contact_sorter";
 	const MERGER = "contact_merger";
+    const FILTER = "contact_filter";
+    const GENDER_GUESSER = "gender_guesser";
 
 
     /**
@@ -47,9 +49,12 @@ class AzineHybridAuthExtension extends Extension {
         $container->setParameter(self::PREFIX."_".self::DEBUG, 			$config[self::DEBUG]);
         $container->setParameter(self::PREFIX."_".self::DEBUG_FILE,		$config[self::DEBUG_FILE]);
         $container->setParameter(self::PREFIX."_".self::PROVIDERS,		$config[self::PROVIDERS]);
-        $container->setParameter(self::PREFIX."_".self::SORTER."_class",$config[self::SORTER]);
-        $container->setParameter(self::PREFIX."_".self::MERGER."_class",$config[self::MERGER]);
-        
+
+        $container->setAlias(self::PREFIX."_".self::FILTER,         $config[self::FILTER]);
+        $container->setAlias(self::PREFIX."_".self::MERGER,         $config[self::MERGER]);
+        $container->setAlias(self::PREFIX."_".self::SORTER,         $config[self::SORTER]);
+        $container->setAlias(self::PREFIX."_".self::GENDER_GUESSER, $config[self::GENDER_GUESSER]);
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
     }
