@@ -37,6 +37,8 @@ class AzineHybridAuthJsonController extends Controller {
      * Try to connect to the provider
      * @param Request $request
      * @param string $provider
+     * @return RedirectResponse
+     * @throws \Exception
      */
     public function connectUserAction(Request $request, $provider, $callbackRoute = null){
        	try {
@@ -96,6 +98,7 @@ class AzineHybridAuthJsonController extends Controller {
      * @param Request $request
      * @param integer $pageSize
      * @param integer $offset
+     * @return JsonResponse
      */
     public function mergedContactsAction(Request $request, $pageSize, $offset){
     	$contacts = $this->getBusinessNetworkProviderService()->getContactProfiles($pageSize, $offset);
