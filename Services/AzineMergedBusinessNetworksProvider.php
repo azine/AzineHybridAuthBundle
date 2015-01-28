@@ -5,10 +5,6 @@ use Azine\HybridAuthBundle\Entity\UserContact;
 
 use Symfony\Component\HttpFoundation\Session\Session;
 
-use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
-
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 class AzineMergedBusinessNetworksProvider {
 
 	/**
@@ -75,11 +71,14 @@ class AzineMergedBusinessNetworksProvider {
         $this->contactFilter = $contactFilter;
 	}
 
-	/**
-	 * Get user-profiles from xing and linked-in
-	 * @param int $pageSize
-	 * @param int $offest
-	 */
+    /**
+     * Get user-profiles from xing and linked-in
+     * @param int $pageSize
+     * @param int $offset
+     * @param bool $tryToConnect
+     * @param array $filterParams
+     * @return array
+     */
 	public function getContactProfiles($pageSize = 50, $offset = 0, $tryToConnect = false, $filterParams = array()){
 		// check if the contacts are loaded already
 		if(sizeof($this->providers) != sizeof($this->loadedProviders)){
@@ -117,7 +116,7 @@ class AzineMergedBusinessNetworksProvider {
 	/**
 	 * Get ALL xing contacts of the current user
 	 * @throws Exception
-	 * @return multitype:\Azine\HybridAuthBundle\Entity\UserContact
+     * @return array of UserContact
 	 */
 	public function getUserContactsFor($provider){
 		if($provider == "Xing"){
@@ -137,14 +136,14 @@ class AzineMergedBusinessNetworksProvider {
 			$nextContact->description	= $next->description;
 			$nextContact->email			= $next->email;
 		}
-		return $usersContacts;
+		return $userContacts;
 	}
 
-	/**
-	 * Get ALL xing contacts of the current user
-	 * @throws Exception
-	 * @return multitype:\Azine\HybridAuthBundle\Entity\UserContact
-	 */
+    /**
+     * Get ALL xing contacts of the current user
+     * @throws \Exception
+     * @return array of UserContact
+     */
 	public function getXingContacts(){
 		$api = $this->hybridAuth->getXingApi();
 		$fetchSize = 100;
@@ -170,59 +169,17 @@ class AzineMergedBusinessNetworksProvider {
 		// Create the contacts array.
 		$xingContacts = array();
 		foreach($users as $connection) {
-			$nextContact = new UserContact("Xing");
-			$nextContact->identifier	= (property_exists($connection, 'id'))          	? $connection->id           : '';
-			$nextContact->profileURL	= (property_exists($connection, 'permalink'))   	? $connection->permalink    : '';
-			$nextContact->firstName 	= (property_exists($connection, 'first_name'))		? $connection->first_name 	: '';
-			$nextContact->lastName		= (property_exists($connection, 'last_name')) 		? $connection->last_name 	: '';
-			$nextContact->displayName	= $nextContact->firstName." ".$nextContact->lastName;
-			$nextContact->description	= (property_exists($connection, 'interests'))   	? $connection->interests    : '';
-			$nextContact->email			= (property_exists($connection, 'active_email'))	? $connection->active_email : '';
-			$nextContact->gender		= (property_exists($connection, 'gender'))			? $connection->gender : '';
-			
-			// headline title @ company
-			if(property_exists($connection, 'professional_experience')){
-				$jobTitle = $connection->professional_experience->primary_company->title;
-				$company = $connection->professional_experience->primary_company->name;
-				$nextContact->headline = $jobTitle . " @ " . $company;
-			} else {
-				$nextContact->headline	= "";
-			}			
-
-			// My own priority: Homepage, blog, other, something else.
-			if (property_exists($connection, 'web_profiles')) {
-				$nextContact->webSiteURL = (property_exists($connection->web_profiles, 'homepage')) ? $connection->web_profiles->homepage[0] : null;
-				if (null === $nextContact->webSiteURL) {
-					$nextContact->webSiteURL = (property_exists($connection->web_profiles, 'blog')) ? $connection->web_profiles->blog[0] : null;
-				}
-				if (null === $nextContact->webSiteURL) {
-					$nextContact->webSiteURL = (property_exists($connection->web_profiles, 'other')) ? $connection->web_profiles->other[0] : null;
-				}
-				// Just use *anything*!
-				if (null === $nextContact->webSiteURL) {
-					foreach ($connection->web_profiles as $aUrl) {
-						$nextContact->webSiteURL = $aUrl[0];
-						break;
-					}
-				}
-			}
-
-			// We use the largest picture available.
-			if (property_exists($connection, 'photo_urls') && property_exists($connection->photo_urls, 'large')) {
-				$nextContact->photoURL = (property_exists($connection->photo_urls, 'large')) ? $connection->photo_urls->large : '';
-			}
-
-			$xingContacts[] = $nextContact;
+			$xingContacts[] = $this->createUserContactFromXingProfile($connection);
 		}
 
 		return $xingContacts;
 	}
 
-	/**
-	 * Get ALL linkedin contacts of the current user
-	 * @throws Exception
-	 * @return multitype:\Azine\HybridAuthBundle\Entity\UserContact
-	 */
+    /**
+     * Get ALL linkedin contacts of the current user
+     * @throws Exception
+     * @return array of UserContact
+     */
 	public function getLinkedInContacts(){
 		$api = $this->hybridAuth->getLinkedInApi();
 		$fetchSize = 500;
@@ -245,25 +202,9 @@ class AzineMergedBusinessNetworksProvider {
 			throw new Exception( "User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e );
 		}
 
-
 		$contacts = array();
-
 		foreach( $users as $connection ) {
-			$nextContact = new UserContact("LinkedIn");
-
-			$nextContact->identifier  = (string) $connection->id;
-			$nextContact->firstName = (string) $connection->{'first-name'};
-			$nextContact->lastName = (string) $connection->{'last-name'};
-			$nextContact->displayName = (string) $connection->{'first-name'} . " " . $connection->{'last-name'};
-			$nextContact->profileURL  = (string) $connection->{'site-standard-profile-request'};
-			$nextContact->photoURL    = (string) $connection->{'picture-url'};
-			$nextContact->description = (string) $connection->{'summary'};
-			$nextContact->gender 	 = $this->genderGuesser->gender($nextContact->firstName, 5);
-
-			$nextContact->headline	= (property_exists($connection, 'headline'))			? (string) $connection->headline : '';
-			$nextContact->headline = str_replace(" at ", " @ ", $nextContact->headline);
-			
-			$contacts[] = $nextContact;
+            $contacts[] = $this->createUserContactFromLinkedInProfile($connection);
 		}
 
 		return $contacts;
@@ -289,4 +230,101 @@ class AzineMergedBusinessNetworksProvider {
 		}
 		return null;
 	}
+
+    /**
+     * Get the basic profile of the user with the given profileUrl
+     * @param string $profileUrl
+     * @throws Exception
+     * @return UserContact
+     */
+    public function getUserProfileByUrl($profileUrl){
+        $matches = array();
+        preg_match('/https?:\/\/.{0,5}(xing|linkedin)(\.ch|\.com).*/', $profileUrl, $matches);
+        $provider = $matches[1];
+        if(strpos($provider, "xing") !== false ){
+            $matches = array();
+            preg_match('/.*\/profile\/([]a-z,A-Z,_,0-9]*).*/', $profileUrl, $matches);
+            if(sizeof($matches) != 2){
+                return null;
+            }
+            $profilePage = $matches[1];
+            $xingProfiles = $this->hybridAuth->getXingApi()->get("users/$profilePage.json");
+            return $this->createUserContactFromXingProfile($xingProfiles->users[0]);
+
+        } elseif (strpos($provider, "linkedin") !== false){
+            $profileUrl = urlencode($profileUrl);
+            try{
+                $response = $this->hybridAuth->getLinkedInApi()->connections("url=$profileUrl:(id,first-name,last-name,picture-url,public-profile-url,summary,headline)");
+            } catch( \LinkedInException $e ){
+                throw new Exception( "User profile by url request failed! linkedin returned an error.", $e->getCode(), $e );
+            }
+            $connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
+            return $this->createUserContactFromLinkedInProfile($connectionsXml);
+        }
+    }
+
+    private function createUserContactFromXingProfile($xingProfile){
+        $newContact = new UserContact("Xing");
+        $newContact->identifier	    = (property_exists($xingProfile, 'id'))          	? $xingProfile->id                  : '';
+        $newContact->firstName 	    = (property_exists($xingProfile, 'first_name'))		? $xingProfile->first_name 	        : '';
+        $newContact->lastName		= (property_exists($xingProfile, 'last_name')) 		? $xingProfile->last_name 	        : '';
+        $newContact->displayName	= $newContact->firstName." ".$newContact->lastName;
+        $newContact->profileUrl	    = (property_exists($xingProfile, 'permalink'))   	? $xingProfile->permalink           : '';
+        $newContact->photoUrl       = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_96x96   : '';
+        $newContact->photoUrlBig    = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_256x256   : '';
+        $newContact->description	= (property_exists($xingProfile, 'interests'))   	? $xingProfile->interests           : '';
+        $newContact->email			= (property_exists($xingProfile, 'active_email'))	? $xingProfile->active_email        : '';
+        $newContact->gender		    = (property_exists($xingProfile, 'gender'))			? $xingProfile->gender              : '';
+        $primaryCompany             = (property_exists($xingProfile, 'professional_experience') && property_exists($xingProfile->professional_experience, 'primary_company')) ? $xingProfile->professional_experience->primary_company : null;
+        // company name and title are not always available.
+        if($primaryCompany) {
+            $company = (property_exists($primaryCompany, 'name'))	? $primaryCompany->name        : '';
+            $title = (property_exists($primaryCompany, 'title'))	? $primaryCompany->title        : '';
+            if($title && $company) {
+                $newContact->headline = $title . " @ " . $company;
+            } else {
+                $newContact->headline = $title . $company;
+            }
+        }
+
+        // My own priority: Homepage, blog, other, something else.
+        if (property_exists($xingProfile, 'web_profiles')) {
+            $newContact->webSiteUrl = (property_exists($xingProfile->web_profiles, 'homepage')) ? $xingProfile->web_profiles->homepage[0] : null;
+            if (null === $newContact->webSiteUrl) {
+                $newContact->webSiteUrl = (property_exists($xingProfile->web_profiles, 'blog')) ? $xingProfile->web_profiles->blog[0] : null;
+            }
+            if (null === $newContact->webSiteUrl) {
+                $newContact->webSiteUrl = (property_exists($xingProfile->web_profiles, 'other')) ? $xingProfile->web_profiles->other[0] : null;
+            }
+            // Just use *anything*!
+            if (null === $newContact->webSiteUrl) {
+                foreach ($xingProfile->web_profiles as $aUrl) {
+                    $newContact->webSiteUrl = $aUrl[0];
+                    break;
+                }
+            }
+        }
+
+        return $newContact;
+    }
+
+    private function createUserContactFromLinkedInProfile($linkedinProfile){
+        $newContact = new UserContact("LinkedIn");
+        $newContact->identifier  = (string) $linkedinProfile->id;
+        $newContact->firstName   = (string) $linkedinProfile->{'first-name'};
+        $newContact->lastName    = (string) $linkedinProfile->{'last-name'};
+        $newContact->displayName = (string) $linkedinProfile->{'first-name'} . " " . $linkedinProfile->{'last-name'};
+        $newContact->profileUrl  = (string) $linkedinProfile->{'public-profile-url'};
+        if($newContact->profileUrl == null) {
+            $newContact->profileUrl = (string)$linkedinProfile->{'site-standard-profile-request'};
+        }
+        $newContact->photoUrl    = (string) $linkedinProfile->{'picture-url'};
+        $newContact->description = (string) $linkedinProfile->{'summary'};
+        $newContact->email		 = null; // linked-in does not provide email addresses
+        $newContact->gender 	 = $this->genderGuesser->gender($newContact->firstName, 5);
+        $headline	             = (property_exists($linkedinProfile, 'headline'))           		? (string) $linkedinProfile->headline : '';
+        $newContact->headline = str_replace(" at ", " @ ", $headline);
+
+        return $newContact;
+    }
 }

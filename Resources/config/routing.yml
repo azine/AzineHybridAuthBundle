@@ -21,6 +21,10 @@ azine_hybrid_auth_user_profile:
     pattern:  /{provider}/profile
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profile" }
 
+azine_hybrid_auth_user_profile_by_url:
+    pattern:  /profile/by/url
+    defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profileByUrl" }
+
 azine_hybrid_auth_contacts:
     pattern:  /{provider}/contacts
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:contacts" }

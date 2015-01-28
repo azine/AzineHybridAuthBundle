@@ -83,9 +83,21 @@ class AzineHybridAuthJsonController extends Controller {
     }
 
     /**
+     * @param Request $request
+     * @param $profileUrl
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function profileByUrlAction(Request $request){
+        $profileUrl = $request->get("searchByUrl");
+        $profile = $this->getBusinessNetworkProviderService()->getUserProfileByUrl($profileUrl);
+        return new JsonResponse(array('profile' => $profile));
+    }
+
+
+    /**
      * Get all users contacts for the requested provider
      * @param Request $request
-     * @param unknown_type $provider
+     * @param string $provider
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function contactsAction(Request $request, $provider){
