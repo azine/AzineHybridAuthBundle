@@ -57,6 +57,18 @@ azine_hybrid_auth_bundle:
     
 ```
 
+## Update from 0.9 or before to dev-master
+There is a minor BC-break in the commit 4bcb5c061e3df9188a92b3a047a2a8a6cb9245ee.
+The *URL fields of the Entity/UserContact.php class have been renamed to *Url.
+
+```
+$webSiteURL => $webSiteUrl
+$profileURL => $profileUrl
+$photoUrl => $photoURL
+```
+
+If you use these fields in php or in JavaScript/JSON, you probably need to update your code accordingly.
+
 ## Create apps on your preferred social networks/providers
  Xing => https://dev.xing.com/applications/dashboard
  LinkedIn => https://www.linkedin.com/secure/developer
