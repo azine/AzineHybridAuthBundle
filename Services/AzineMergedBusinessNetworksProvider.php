@@ -269,8 +269,8 @@ class AzineMergedBusinessNetworksProvider {
         $newContact->firstName 	    = (property_exists($xingProfile, 'first_name'))		? $xingProfile->first_name 	        : '';
         $newContact->lastName		= (property_exists($xingProfile, 'last_name')) 		? $xingProfile->last_name 	        : '';
         $newContact->displayName	= $newContact->firstName." ".$newContact->lastName;
-        $newContact->profileUrl	    = (property_exists($xingProfile, 'permalink'))   	? $xingProfile->permalink           : '';
-        $newContact->photoUrl       = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_96x96   : '';
+        $newContact->profileURL	    = (property_exists($xingProfile, 'permalink'))   	? $xingProfile->permalink           : '';
+        $newContact->photoURL       = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_96x96   : '';
         $newContact->photoUrlBig    = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_256x256   : '';
         $newContact->description	= (property_exists($xingProfile, 'interests'))   	? $xingProfile->interests           : '';
         $newContact->email			= (property_exists($xingProfile, 'active_email'))	? $xingProfile->active_email        : '';
@@ -289,17 +289,17 @@ class AzineMergedBusinessNetworksProvider {
 
         // My own priority: Homepage, blog, other, something else.
         if (property_exists($xingProfile, 'web_profiles')) {
-            $newContact->webSiteUrl = (property_exists($xingProfile->web_profiles, 'homepage')) ? $xingProfile->web_profiles->homepage[0] : null;
-            if (null === $newContact->webSiteUrl) {
-                $newContact->webSiteUrl = (property_exists($xingProfile->web_profiles, 'blog')) ? $xingProfile->web_profiles->blog[0] : null;
+            $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'homepage')) ? $xingProfile->web_profiles->homepage[0] : null;
+            if (null === $newContact->webSiteURL) {
+                $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'blog')) ? $xingProfile->web_profiles->blog[0] : null;
             }
-            if (null === $newContact->webSiteUrl) {
-                $newContact->webSiteUrl = (property_exists($xingProfile->web_profiles, 'other')) ? $xingProfile->web_profiles->other[0] : null;
+            if (null === $newContact->webSiteURL) {
+                $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'other')) ? $xingProfile->web_profiles->other[0] : null;
             }
             // Just use *anything*!
-            if (null === $newContact->webSiteUrl) {
+            if (null === $newContact->webSiteURL) {
                 foreach ($xingProfile->web_profiles as $aUrl) {
-                    $newContact->webSiteUrl = $aUrl[0];
+                    $newContact->webSiteURL = $aUrl[0];
                     break;
                 }
             }
@@ -314,11 +314,11 @@ class AzineMergedBusinessNetworksProvider {
         $newContact->firstName   = (string) $linkedinProfile->{'first-name'};
         $newContact->lastName    = (string) $linkedinProfile->{'last-name'};
         $newContact->displayName = (string) $linkedinProfile->{'first-name'} . " " . $linkedinProfile->{'last-name'};
-        $newContact->profileUrl  = (string) $linkedinProfile->{'public-profile-url'};
-        if($newContact->profileUrl == null) {
-            $newContact->profileUrl = (string)$linkedinProfile->{'site-standard-profile-request'};
+        $newContact->profileURL  = (string) $linkedinProfile->{'public-profile-url'};
+        if($newContact->profileURL == null) {
+            $newContact->profileURL = (string)$linkedinProfile->{'site-standard-profile-request'};
         }
-        $newContact->photoUrl    = (string) $linkedinProfile->{'picture-url'};
+        $newContact->photoURL    = (string) $linkedinProfile->{'picture-url'};
         $newContact->description = (string) $linkedinProfile->{'summary'};
         $newContact->email		 = null; // linked-in does not provide email addresses
         $newContact->gender 	 = $this->genderGuesser->gender($newContact->firstName, 5);

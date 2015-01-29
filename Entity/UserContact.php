@@ -8,13 +8,13 @@ class UserContact {
 	public $identifier = NULL;
 	
 	/* User website, blog, web page */
-	public $webSiteUrl = NULL;
+	public $webSiteURL = NULL;
 	
-	/* Url link to profile page on the IDp web site */
-	public $profileUrl = NULL;
+	/* URL link to profile page on the IDp web site */
+	public $profileURL = NULL;
 
-    /* Url link to user photo or avatar */
-    public $photoUrl = NULL;
+	/* URL link to user photo or avatar */
+	public $photoURL = NULL;
 
     /* Url link to user photo or avatar (bigger)*/
     public $photoUrlBig = NULL;
@@ -48,9 +48,9 @@ class UserContact {
 								$firstName = null, 
 								$lastName = null,
 								$identifier = null, 
-								$webSiteUrl = null, 
-								$profileUrl = null, 
-								$photoUrl = null, 
+								$webSiteURL = null,
+								$profileURL = null,
+								$photoURL = null,
 								$description = null, 
 								$email = null,
 								$headline = null
@@ -59,9 +59,9 @@ class UserContact {
 		$this->firstName = $firstName;
 		$this->lastName = $lastName;
 	    $this->identifier = $identifier;
-		$this->webSiteUrl = $webSiteUrl;
-		$this->profileUrl = $profileUrl;
-		$this->photoUrl = $photoUrl;
+		$this->webSiteURL = $webSiteURL;
+		$this->profileURL = $profileURL;
+		$this->photoURL = $photoURL;
 		$this->displayName = $firstName." ".$lastName;
 		$this->description = $description;
 		$this->email = $email;
