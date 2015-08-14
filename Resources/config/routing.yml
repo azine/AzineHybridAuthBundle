@@ -1,36 +1,36 @@
 # hybrid-auth endpoint for authentication handling etc.
 azine_hybrid_auth_endpoint:
-    pattern:  /endpoint
+    path:  /endpoint
     defaults: { _controller: "AzineHybridAuthBundle:HybridEndPoint:process" }
 
 # connect user to provider    
 azine_hybrid_auth_connect_user:
-    pattern:   /connect/to/{provider}/{callbackRoute}
+    path:   /connect/to/{provider}/{callbackRoute}
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:connectUser"}
 
 # Json request queries
 azine_hybrid_auth_is_connected:
-    pattern:   /is/connected/to/{provider}
+    path:   /is/connected/to/{provider}
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:isConnected"}
 
 azine_hybrid_auth_merged_contacts:
-    pattern:   /merged/contacts/{pageSize}/{offset}
+    path:   /merged/contacts/{pageSize}/{offset}
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:mergedContacts", pageSize: 1000, offset: 0}
         
 azine_hybrid_auth_user_profile:
-    pattern:  /{provider}/profile
+    path:  /{provider}/profile
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profile" }
 
 azine_hybrid_auth_user_profile_by_url:
-    pattern:  /profile/by/url
+    path:  /profile/by/url
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profileByUrl" }
 
 azine_hybrid_auth_contacts:
-    pattern:  /{provider}/contacts
+    path:  /{provider}/contacts
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:contacts" }
     
 azine_hybrid_auth_contact_profile:
-    pattern:  /{provider}/profile/{userId}
+    path:  /{provider}/profile/{userId}
     defaults: { _controller: "AzineHybridAuthBundle:AzineHybridAuthJson:profile" }
     
     
