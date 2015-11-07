@@ -29,8 +29,9 @@ sudo: false
 
 before_script:
   - ls -a /home/travis/build/azine/* -R
-  - composer require symfony/symfony:${SYMFONY_VERSION} --prefer-source --no-update -v
-  - composer -vvv install --dev --prefer-source
+  - composer require symfony/symfony:${SYMFONY_VERSION} --prefer-dist --no-update -v
+  - composer require symfony/framework-bundle:${SYMFONY_VERSION} --prefer-dist --no-update -v
+  - composer -vvv install --prefer-dist --no-dev
 
 script:
   - phpunit --coverage-clover=coverage.clover /home/travis/build/azine/AzineHybridAuthBundle/Tests/
