@@ -164,7 +164,7 @@ class AzineGenderGuesser implements GenderGuesser {
 
 		// Match one list only, use DoubleMetaphone
 
-		$meta_name = $metaphone_function($name);
+		$meta_name = call_user_func($this->metaphone_function, $name);
 		$metaphone_hit = '';
 
 		// Pete- Changed the original Perl code which did a copy of the name
@@ -180,7 +180,7 @@ class AzineGenderGuesser implements GenderGuesser {
 		if ($femaleHit>0)
 			break;
 
-		$meta_list_name = $metaphone_function($list_name);
+		$meta_list_name = call_user_func($this->metaphone_function, $list_name);
 
 		if ($meta_name === $meta_list_name) {
 			$femaleHit = $weight;
@@ -195,7 +195,7 @@ class AzineGenderGuesser implements GenderGuesser {
 		if ($maleHit>0)
 			break;
 
-		$meta_list_name = $metaphone_function($list_name);
+		$meta_list_name = call_user_func($this->metaphone_function, $list_name);
 
 		if ($meta_name === $meta_list_name) {
 			$maleHit = $weight;
@@ -221,7 +221,7 @@ class AzineGenderGuesser implements GenderGuesser {
 
 		// Match either, weight, use DoubleMetaphone
 
-		$meta_name = $metaphone_function($name);
+		$meta_name = call_user_func($this->metaphone_function, $name);
 		$metaphone_hit = '';
 
 		// Pete- Changed the original Perl code which did a copy of the name
@@ -237,7 +237,7 @@ class AzineGenderGuesser implements GenderGuesser {
 		if ($femaleHit>0)
 			break;
 
-		$meta_list_name = $metaphone_function($list_name);
+		$meta_list_name = call_user_func($this->metaphone_function, $list_name);
 
 		if ($meta_name === $meta_list_name) {
 			$femaleHit = $weight;
@@ -252,7 +252,7 @@ class AzineGenderGuesser implements GenderGuesser {
 		if ($maleHit>0)
 			break;
 
-		$meta_list_name = $metaphone_function($list_name);
+		$meta_list_name = call_user_func($this->metaphone_function, $list_name);
 
 		if ($meta_name === $meta_list_name) {
 			$maleHit = $weight;
