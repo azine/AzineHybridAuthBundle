@@ -13,7 +13,7 @@ class AzineContactMerger implements ContactMerger {
 	public function merge(array $newContacts){
 		$contacts = array();
 		foreach ($newContacts as $nextProvider => $nextContacts){
-			$contacts = array_merge($contacts, $newContacts);
+			$contacts = array_merge($contacts, $nextContacts);
 		}
 		return $contacts;
 	}
