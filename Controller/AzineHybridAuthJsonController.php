@@ -10,8 +10,6 @@ use Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\HttpFoundation\Request;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -21,7 +19,7 @@ class AzineHybridAuthJsonController extends Controller {
     /**
      * Check if the user is connected to the requested provider.
      * @param Request $request
-     * @param unknown_type $provider
+     * @param string $provider
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function isConnectedAction(Request $request, $provider){
@@ -42,7 +40,7 @@ class AzineHybridAuthJsonController extends Controller {
      */
     public function connectUserAction(Request $request, $provider, $callbackRoute = null){
        	try {
-	    	$hybridAuth = $this->getAzineHybridAuthService()->getInstance();
+	    	$hybridAuth = $this->getAzineHybridAuthService()->getInstance($request);
 	    	$connected = $hybridAuth->isConnectedWith($provider);
     	} catch (\Exception $e) {
     		return new RedirectResponse($this->generateUrl($callbackRoute));
@@ -55,14 +53,15 @@ class AzineHybridAuthJsonController extends Controller {
     		} catch (\Exception $e) {
     			throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
     		}
-    	} else {
-            $params = $request->query->all();
-   			$callbackUrl = $this->generateUrl($callbackRoute, $params);
-    		if(!$callbackUrl){
-    			throw new \Exception("Callback route not defined");
-    		}
-    		return new RedirectResponse($callbackUrl);
     	}
+
+		$params = $request->query->all();
+		$callbackUrl = $this->generateUrl($callbackRoute, $params);
+		if(!$callbackUrl){
+			throw new \Exception("Callback route not defined");
+		}
+		return new RedirectResponse($callbackUrl);
+
     }
 
 
@@ -84,7 +83,6 @@ class AzineHybridAuthJsonController extends Controller {
 
     /**
      * @param Request $request
-     * @param $profileUrl
      * @return \Symfony\Component\HttpFoundation\JsonResponse
      */
     public function profileByUrlAction(Request $request){

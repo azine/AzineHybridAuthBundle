@@ -8,8 +8,10 @@ services:
     azine_hybrid_auth_service:
         class:  Azine\HybridAuthBundle\Services\AzineHybridAuth
         arguments:
-            router: "@router"
-            config: 
+            router:               "@router"
+            securityContext:      "@security.context"
+            entityManager:        "@doctrine.orm.entity_manager"
+            config:
                 endpoint_route:   "%azine_hybrid_auth_endpoint_route%"
                 providers:        "%azine_hybrid_auth_providers%"
                 debug_mode:       "%azine_hybrid_auth_debug%" 

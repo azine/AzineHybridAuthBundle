@@ -2,11 +2,8 @@
 
 namespace Azine\HybridAuthBundle\Controller;
 
+use Azine\HybridAuthBundle\Services\AzineHybridAuth;
 use Symfony\Component\HttpFoundation\ParameterBag;
-
-use Azine\HybridAuthBundle\AzineHybridAuthBundle;
-
-use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -30,20 +27,30 @@ class HybridEndPointController extends Controller {
 	private $requestQuery;
 
 	/**
-	 * @var \Hybrid_Auth
+	 * @param Request $request
+	 * @return \Hybrid_Auth
 	 */
-	private function getHybridAuth(){
-		return $this->get("azine_hybrid_auth_service")->getInstance();
+	private function getHybridAuth(Request $request){
+		return $this->getAzineHybridAuth()->getInstance($request);
 	}
 
 	/**
-	 * Process the current request
-	 *
-	 * $request - The current request parameters. Leave as NULL to default to use $_REQUEST.
+	 * @return AzineHybridAuth
 	 */
+	private function getAzineHybridAuth(){
+		return $this->get("azine_hybrid_auth_service");
+	}
+
+    /**
+     * Process the current request
+     *
+     * $request - The current request parameters. Leave as NULL to default to use $_REQUEST.
+     * @param Request $request
+     * @return RedirectResponse|Response
+     */
 	public function processAction(Request $request) {
 
-		$this->hybridAuth =  $this->getHybridAuth();
+		$this->hybridAuth =  $this->getHybridAuth($request);
 
 		// Get the request Vars
 		$this->requestQuery = $request->query;
@@ -106,7 +113,7 @@ class HybridEndPointController extends Controller {
 		$output = str_replace
 		(
 				"{X_XRDS_LOCATION}",
-				htmlentities( $this->hybridAuth->getCurrentUrl( false ), ENT_QUOTES, 'UTF-8' ) . "?get=openid_xrds&v=" . $this->hybridAuth->$version,
+				htmlentities( $this->hybridAuth->getCurrentUrl( false ), ENT_QUOTES, 'UTF-8' ) . "?get=openid_xrds&v=" . \Hybrid_Auth::$version,
 				file_get_contents( dirname(__FILE__) . "/resources/openid_realm.html" )
 		);
 		return new Response($output);
@@ -187,6 +194,8 @@ class HybridEndPointController extends Controller {
 			\Hybrid_Logger::info( "Endpoint: call adapter [{$provider_id}] loginFinish() " );
 
 			$hauth->adapter->loginFinish();
+
+			$this->getAzineHybridAuth()->storeHybridAuthSessionData($this->hybridAuth->getSessionData());
 		}
 		catch( \Exception $e ){
 			\Hybrid_Logger::error( "Exception:" . $e->getMessage()."\n\n".$e->getTraceAsString() );
