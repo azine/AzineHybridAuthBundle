@@ -2,8 +2,6 @@
 
 namespace Azine\HybridAuthBundle\Controller;
 
-use Azine\HybridAuthBundle\Services\AzineHybridAuth;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;

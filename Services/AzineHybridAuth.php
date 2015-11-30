@@ -4,7 +4,6 @@ namespace Azine\HybridAuthBundle\Services;
 use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
 
 use Azine\HybridAuthBundle\Entity\HybridAuthSessionData;
-use Azine\PlatformBundle\Entity\User;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;

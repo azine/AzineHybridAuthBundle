@@ -4,10 +4,6 @@ namespace Azine\HybridAuthBundle\Controller;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
-use Azine\HybridAuthBundle\Services\AzineHybridAuth;
-
-use Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Symfony\Component\HttpFoundation\Request;
