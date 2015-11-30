@@ -1,0 +1,19 @@
+Azine\HybridAuthBundle\Entity\HybridAuthSessionData:
+    type: entity
+    table: hybridauth_session
+    repositoryClass: Azine\HybridAuthBundle\Entity\HybridAuthSessionDataRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        username:
+            type: string(255)
+        provider:
+            type: string(127)
+        sessionData:
+            type: text
+            column: session_data
+    lifecycleCallbacks: {  }

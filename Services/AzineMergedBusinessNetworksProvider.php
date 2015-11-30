@@ -75,39 +75,47 @@ class AzineMergedBusinessNetworksProvider {
      * Get user-profiles from xing and linked-in
      * @param int $pageSize
      * @param int $offset
-     * @param bool $tryToConnect
      * @param array $filterParams
      * @return array
      */
-	public function getContactProfiles($pageSize = 50, $offset = 0, $tryToConnect = false, $filterParams = array()){
+	public function getContactProfiles($pageSize = 50, $offset = 0, $filterParams = array()){
+
 		// check if the contacts are loaded already
 		if(sizeof($this->providers) != sizeof($this->loadedProviders)){
 			$this->getAllContacts();
 		}
 
+		// filter according to the $filterParams
+		$contacts = $this->contactFilter->filter($this->contacts, $filterParams);
+
 		// return one page
-		return array_slice($this->contactFilter->filter($this->contacts, $filterParams), $offset, $pageSize, true);
+		$contacts =  array_slice($contacts, $offset, $pageSize, true);
+		return $contacts;
 	}
 
 	/**
 	 * Fetch all contacts from the networks
 	 */
 	private function getAllContacts(){
+		$newContactsCount = 0;
 		foreach ($this->providers as $provider){
-			$connected = $this->hybridAuth->getProvider($provider, false)->isUserConnected();
+			$connected = $this->hybridAuth->getProvider(null, $provider, false)->isUserConnected();
 			if($connected && (!array_key_exists($provider, $this->loadedProviders) || sizeof($this->loadedProviders[$provider]) == 0)){
 				$newContacts = $this->getUserContactsFor($provider);
 				$this->loadedProviders[$provider] = $newContacts;
 				$this->session->set(self::LOADED_PROVIDERS_NAME, $this->loadedProviders);
 				$this->session->save();
+				$newContactsCount += sizeof($newContacts);
 			}
 		}
 
-		// merge the old and new contacts
-		$this->contacts = $this->merger->merge($this->loadedProviders);
+		if($newContactsCount > 0) {
+			// merge the old and new contacts
+			$this->contacts = $this->merger->merge($this->loadedProviders);
 
-		// sort all contacts
-		usort($this->contacts, array($this->sorter, 'compare'));
+			// sort all contacts
+			usort($this->contacts, array($this->sorter, 'compare'));
+		}
 
 		$this->session->set(self::CONTACTS_SESSION_NAME, $this->contacts);
 		$this->session->save();
@@ -115,8 +123,9 @@ class AzineMergedBusinessNetworksProvider {
 
 	/**
 	 * Get ALL xing contacts of the current user
-	 * @throws Exception
-     * @return array of UserContact
+	 * @param $provider
+	 * @return array
+	 * @throws \Exception
 	 */
 	public function getUserContactsFor($provider){
 		if($provider == "Xing"){
@@ -126,7 +135,7 @@ class AzineMergedBusinessNetworksProvider {
 		}
 
 		$userContacts = array();
-		foreach ($this->hybridAuth->getProvider($provider)->getUserContacts() as $next){
+		foreach ($this->hybridAuth->getProvider(null, $provider)->getUserContacts() as $next){
 			$nextContact = new UserContact($provider);
 			$nextContact->identifier	= $next->identifier;
 			$nextContact->profileURL	= $next->profileURL;
@@ -177,7 +186,7 @@ class AzineMergedBusinessNetworksProvider {
 
     /**
      * Get ALL linkedin contacts of the current user
-     * @throws Exception
+     * @throws \Exception
      * @return array of UserContact
      */
 	public function getLinkedInContacts(){
@@ -199,7 +208,7 @@ class AzineMergedBusinessNetworksProvider {
 			}
 		}
 		catch( \LinkedInException $e ){
-			throw new Exception( "User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e );
+			throw new \Exception( "User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e );
 		}
 
 		$contacts = array();
@@ -234,7 +243,7 @@ class AzineMergedBusinessNetworksProvider {
     /**
      * Get the basic profile of the user with the given profileUrl
      * @param string $profileUrl
-     * @throws Exception
+     * @throws \Exception
      * @return UserContact
      */
     public function getUserProfileByUrl($profileUrl){
@@ -256,7 +265,7 @@ class AzineMergedBusinessNetworksProvider {
             try{
                 $response = $this->hybridAuth->getLinkedInApi()->connections("url=$profileUrl:(id,first-name,last-name,picture-url,public-profile-url,summary,headline)");
             } catch( \LinkedInException $e ){
-                throw new Exception( "User profile by url request failed! linkedin returned an error.", $e->getCode(), $e );
+                throw new \Exception( "User profile by url request failed! linkedin returned an error.", $e->getCode(), $e );
             }
             $connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
             return $this->createUserContactFromLinkedInProfile($connectionsXml);

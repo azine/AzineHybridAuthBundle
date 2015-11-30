@@ -45,7 +45,7 @@ $bundles = array(
 );
 ```
 
-Register the routes of the AzineEmailBundle:
+Register the routes of the AzineHybridAuthBundle:
 
 ```
 // in app/config/routing.yml
@@ -57,7 +57,19 @@ azine_hybrid_auth_bundle:
     
 ```
 
-If you use these fields in php or in JavaScript/JSON, you probably need to update your code accordingly.
+If you want to store the users authentication session in the database, so the user is automatically 
+reconnected in the next browser session, then you need to enable this feature in the config.yml and
+update your database schema either by running:
+ 
+```
+php app/console doctrine:schema:update --force
+```
+or create a database migration and apply it
+
+```
+php app/console doctrine:migrations:diff
+php app/console doctrine:migrations:migrate
+```
 
 ## Create apps on your preferred social networks/providers
  Xing => https://dev.xing.com/applications/dashboard
@@ -82,6 +94,8 @@ azine_hybrid_auth:
     endpoint_route:       azine_hybrid_auth_endpoint # the route_name where your endpoint controller (e.g. HybridEndPointController) is available
     debug:                false # set to true to log debug-information to the debug_file
     debug_file:           '%kernel.logs_dir%/hybrid_auth_%kernel.environment%.log' # location of the debug-file
+    store_for_user:       false # set to true to store hybrid auth session data into your database for the logged in user
+    store_as_cookie:      false # set to true if session-information should be stored as cookies (e.g. for anon. users)
     providers:
 
         # Prototype (at least one provider has to be defined)
@@ -123,7 +137,7 @@ This service / provider offers some confienience methods to work with business-n
 All methods expect the user to be "connected" to xing/linkedin. If the user has not yet authorized your app
 to access the data, a http-redirect will be output directly by setting the html-header-location and calling "die". 
 
-### getLinkedInContacts()
+### getXingInContacts()
 Get all xing contacts of the current user.
 
 Not cached, not paged.
@@ -133,8 +147,14 @@ Get all linkedIn contacts of the current user.
 
 Not cached, not paged.
 
+As of May 2015 LinkedIn has limited the api-access. 
+See https://developer.linkedin.com/support/developer-program-transition
+
+Getting the LinkedinContacts will only work if you are in a LinkedIn partner programm and are allowed to access.
+See https://developer.linkedin.com/partner-programs
+
 ### getContactProfiles($pageSize = 50, $offset = 0)
-Get all xing and linkedIn contacts of the current user. Cached and paged.
+Get all contacts of the current user. Cached and paged.
 
 The function getContactProfiles($pageSize = 50, $offset = 0) get's one page of contacts from the business networks.
 

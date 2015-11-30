@@ -2,11 +2,9 @@
 
 namespace Azine\HybridAuthBundle\Controller;
 
+use Azine\HybridAuthBundle\Services\AzineHybridAuth;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\ParameterBag;
-
-use Azine\HybridAuthBundle\AzineHybridAuthBundle;
-
-use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -29,24 +27,21 @@ class HybridEndPointController extends Controller {
 	 */
 	private $requestQuery;
 
-	/**
-	 * @var \Hybrid_Auth
-	 */
-	private function getHybridAuth(){
-		return $this->get("azine_hybrid_auth_service")->getInstance();
-	}
-
-	/**
-	 * Process the current request
-	 *
-	 * $request - The current request parameters. Leave as NULL to default to use $_REQUEST.
-	 */
+    /**
+     * Process the current request
+     *
+     * $request - The current request parameters. Leave as NULL to default to use $_REQUEST.
+     * @param Request $request
+     * @return RedirectResponse|Response
+     */
 	public function processAction(Request $request) {
-
-		$this->hybridAuth =  $this->getHybridAuth();
-
 		// Get the request Vars
 		$this->requestQuery = $request->query;
+
+		// init the hybridAuth instance
+		$provider = trim( strip_tags( $this->requestQuery->get("hauth_start") ) );
+		$cookieName = $this->get("azine_hybrid_auth_service")->getCookieName($provider);
+		$this->hybridAuth =  $this->get("azine_hybrid_auth_service")->getInstance($request->cookies->get($cookieName), $provider);
 
 		// If openid_policy requested, we return our policy document
 		if ( $this->requestQuery->has('get') && $this->requestQuery->get('get') == "openid_policy" ) {
@@ -64,7 +59,7 @@ class HybridEndPointController extends Controller {
 		}
 		// Else if hauth.done
 		elseif ( $this->requestQuery->has('hauth_done') && $this->requestQuery->get('hauth_done') ) {
-			return $this->processAuthDone();
+			return $this->processAuthDone($request);
 		}
 		// Else we advertise our XRDS document, something supposed to be done from the Realm URL page
 		else {
@@ -106,7 +101,7 @@ class HybridEndPointController extends Controller {
 		$output = str_replace
 		(
 				"{X_XRDS_LOCATION}",
-				htmlentities( $this->hybridAuth->getCurrentUrl( false ), ENT_QUOTES, 'UTF-8' ) . "?get=openid_xrds&v=" . $this->hybridAuth->$version,
+				htmlentities( $this->hybridAuth->getCurrentUrl( false ), ENT_QUOTES, 'UTF-8' ) . "?get=openid_xrds&v=" . \Hybrid_Auth::$version,
 				file_get_contents( dirname(__FILE__) . "/resources/openid_realm.html" )
 		);
 		return new Response($output);
@@ -167,13 +162,15 @@ class HybridEndPointController extends Controller {
 	/**
 	 * define:endpoint step 3.1 and 3.2
 	 */
-	private function processAuthDone() {
+	private function processAuthDone(Request $request) {
 
 		$this->authInit();
 
 		$provider_id = trim( strip_tags( $this->requestQuery->get("hauth_done") ) );
 
 		$hauth = $this->hybridAuth->setup( $provider_id );
+
+		$authCookie = null;
 
 		if( ! $hauth ) {
 			\Hybrid_Logger::error( "Endpoint: Invalid parameter on hauth_done!" );
@@ -187,6 +184,9 @@ class HybridEndPointController extends Controller {
 			\Hybrid_Logger::info( "Endpoint: call adapter [{$provider_id}] loginFinish() " );
 
 			$hauth->adapter->loginFinish();
+
+			// store auth-session-data
+			$authCookie = $this->get("azine_hybrid_auth_service")->storeHybridAuthSessionData($request, $provider_id, $this->hybridAuth->getSessionData());
 		}
 		catch( \Exception $e ){
 			\Hybrid_Logger::error( "Exception:" . $e->getMessage()."\n\n".$e->getTraceAsString() );
@@ -198,7 +198,13 @@ class HybridEndPointController extends Controller {
 
 		\Hybrid_Logger::info( "Endpoint: job done. retrun to callback url." );
 
-		return $this->returnToCallbackUrl($provider_id);
+		$response = $this->returnToCallbackUrl($provider_id);
+
+		// add auth-session-data into cookie
+		if($authCookie){
+			$response->headers->setCookie($authCookie);
+		}
+		return $response;
 	}
 
 	private function authInit() {
