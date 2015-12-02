@@ -40,10 +40,27 @@ class UserContact {
 	/* Prvider id */
 	public $provider = NULL;
 	
-	/* For Xing & LinkedIn usually job-title @ main ompany */
+	/* For Xing & LinkedIn usually job-title @ main company */
 	public $headline = NULL;
-	
-	public function __construct($provider,
+
+	/* array of tags associated with this user. Null if not yet loaded. */
+	public $tags = NULL;
+
+    /**
+     * @param $provider
+     * @param string | null $gender
+     * @param string | null $firstName
+     * @param string | null $lastName
+     * @param string | null $identifier
+     * @param string | null $webSiteURL
+     * @param string | null $profileURL
+     * @param string | null $photoURL
+     * @param string | null $description
+     * @param string | null $email
+     * @param string | null $headline
+     * @param array | null $tags array of strings
+     */
+    public function __construct($provider,
 								$gender = null,
 								$firstName = null, 
 								$lastName = null,
@@ -53,7 +70,8 @@ class UserContact {
 								$photoURL = null,
 								$description = null, 
 								$email = null,
-								$headline = null
+								$headline = null,
+								array $tags = null
 							){
 		$this->provider = $provider;
 		$this->firstName = $firstName;
@@ -66,6 +84,7 @@ class UserContact {
 		$this->description = $description;
 		$this->email = $email;
 		$this->headline = $headline;
+		$this->tags = $tags;
 
 	}
 
