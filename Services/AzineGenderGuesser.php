@@ -87,7 +87,6 @@ class AzineGenderGuesser implements GenderGuesser {
 		$gender = null;
 
 		if (!$name) {
-			error_log("No name specified");
 			return null;
 		}
 
