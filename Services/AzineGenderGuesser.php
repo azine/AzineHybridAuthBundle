@@ -601,6 +601,7 @@ class AzineGenderGuesser implements GenderGuesser {
 		'edgar' => '0.0626243917912929',
 		'ivan' => '0.0626243917912929',
 		'dominic' => '0.062419736916158',
+		'dominik' => '1',
 		'geoffrey' => '0.0622150820410231',
 		'jerome' => '0.0621127546034556',
 		'reginald' => '0.0617034448531857',
