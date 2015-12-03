@@ -138,7 +138,8 @@ class AzineHybridAuthJsonController extends Controller {
 	 * @throws \Exception e.g. if the api-connection is invalid
      */
     public function mergedContactsAction(Request $request, $pageSize, $offset){
-    	$contacts = $this->getBusinessNetworkProviderService()->getContactProfiles($pageSize, $offset);
+		$filterParams = $request->query->all();
+    	$contacts = $this->getBusinessNetworkProviderService()->getContactProfiles($pageSize, $offset, $filterParams);
     	return new JsonResponse(array('contacts' => $contacts));
     }
 
