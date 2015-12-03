@@ -198,7 +198,7 @@ class AzineMergedBusinessNetworksProvider {
 
 		try{
 			while ($fetchMore){
-				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline)?start=$fetchOffset&count=$fetchSize");
+				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
 				$connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
 				foreach ($connectionsXml->person as $person){
 					$users[] = $person;
@@ -263,7 +263,7 @@ class AzineMergedBusinessNetworksProvider {
         } elseif (strpos($provider, "linkedin") !== false){
             $profileUrl = urlencode($profileUrl);
             try{
-                $response = $this->hybridAuth->getLinkedInApi()->connections("url=$profileUrl:(id,first-name,last-name,picture-url,public-profile-url,summary,headline)");
+                $response = $this->hybridAuth->getLinkedInApi()->connections("url=$profileUrl:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities,email-address)");
             } catch( \LinkedInException $e ){
                 throw new \Exception( "User profile by url request failed! linkedin returned an error.", $e->getCode(), $e );
             }
@@ -323,6 +323,10 @@ class AzineMergedBusinessNetworksProvider {
         return $newContact;
     }
 
+	/**
+	 * @param $linkedinProfile
+	 * @return UserContact
+	 */
     private function createUserContactFromLinkedInProfile($linkedinProfile){
         $newContact = new UserContact("LinkedIn");
         $newContact->identifier  = (string) $linkedinProfile->id;
@@ -335,9 +339,12 @@ class AzineMergedBusinessNetworksProvider {
         }
         $newContact->photoURL    = (string) $linkedinProfile->{'picture-url'};
         $newContact->description = (string) $linkedinProfile->{'summary'};
-        $newContact->email		 = null; // linked-in does not provide email addresses
+        $newContact->description .= $newContact->description == "" ? (string) $linkedinProfile->{'specialities'} : "\n". (string) $linkedinProfile->{'specialities'};;
+		if($linkedinProfile->{'email-address'}) {
+			$newContact->email = (string)$linkedinProfile->{'email-address'};
+		}
         $newContact->gender 	 = $this->genderGuesser->gender($newContact->firstName, 5);
-        $headline	             = (property_exists($linkedinProfile, 'headline'))           		? (string) $linkedinProfile->headline : '';
+        $headline	             = (string) $linkedinProfile->{'headline'};
         $newContact->headline = str_replace(" at ", " @ ", $headline);
 
         return $newContact;
