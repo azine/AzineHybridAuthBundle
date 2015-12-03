@@ -2,6 +2,9 @@
 
 namespace Azine\HybridAuthBundle\Controller;
 
+use Azine\HybridAuthBundle\Services\AzineGenderGuesser;
+use Azine\HybridAuthBundle\Services\AzineHybridAuth;
+use Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -89,6 +92,12 @@ class AzineHybridAuthJsonController extends Controller {
     	if($userId == null){
 			$cookieName = $this->getAzineHybridAuthService()->getCookieName($provider);
 	    	$profile = $this->getAzineHybridAuthService()->getProvider($request->cookies->get($cookieName), $provider)->getUserProfile();
+            if(!$profile->gender){
+                /* @var $genderGuesser AzineGenderGuesser */
+                $genderGuesser = $this->get('azine_hybrid_auth_gender_guesser');
+                $gender = $genderGuesser->guess($profile->firstName);
+                $profile->gender = is_array($gender) ? $gender['gender'] : null;
+            }
     	} else {
     		$profile = $this->getBusinessNetworkProviderService()->getUserContactBasicProfile($provider, $userId);
     	}
