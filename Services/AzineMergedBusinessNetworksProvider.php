@@ -272,6 +272,10 @@ class AzineMergedBusinessNetworksProvider {
         }
     }
 
+	/**
+	 * @param $xingProfile
+	 * @return UserContact
+	 */
     private function createUserContactFromXingProfile($xingProfile){
         $newContact = new UserContact("Xing");
         $newContact->identifier	    = (property_exists($xingProfile, 'id'))          	? $xingProfile->id                  : '';
@@ -282,6 +286,8 @@ class AzineMergedBusinessNetworksProvider {
         $newContact->photoURL       = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_96x96   : '';
         $newContact->photoUrlBig    = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_256x256   : '';
         $newContact->description	= (property_exists($xingProfile, 'interests'))   	? $xingProfile->interests           : '';
+        $newContact->description	.= (property_exists($xingProfile, 'haves'))   	    ? "\n".$xingProfile->haves           : '';
+        $newContact->description	.= (property_exists($xingProfile, 'wants'))   	    ? "\n".$xingProfile->wants           : '';
         $newContact->email			= (property_exists($xingProfile, 'active_email'))	? $xingProfile->active_email        : '';
         $newContact->gender		    = (property_exists($xingProfile, 'gender'))			? $xingProfile->gender              : '';
         $primaryCompany             = (property_exists($xingProfile, 'professional_experience') && property_exists($xingProfile->professional_experience, 'primary_company')) ? $xingProfile->professional_experience->primary_company : null;
