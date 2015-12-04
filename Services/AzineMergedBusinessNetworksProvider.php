@@ -115,10 +115,10 @@ class AzineMergedBusinessNetworksProvider {
 
 			// sort all contacts
 			usort($this->contacts, array($this->sorter, 'compare'));
-		}
 
-		$this->session->set(self::CONTACTS_SESSION_NAME, $this->contacts);
-		$this->session->save();
+			$this->session->set(self::CONTACTS_SESSION_NAME, $this->contacts);
+			$this->session->save();
+		}
 	}
 
 	/**
