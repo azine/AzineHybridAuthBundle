@@ -170,5 +170,5 @@ user session.
 [![Latest Stable Version](https://poser.pugx.org/azine/hybridauth-bundle/v/stable.png)](https://packagist.org/packages/azine/hybridauth-bundle)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/)
 [![Code Coverage](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/)
-
+[![Dependency Status](https://www.versioneye.com/user/projects/567eaeb3eb4f47003b000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eaeb3eb4f47003b000001)
 
