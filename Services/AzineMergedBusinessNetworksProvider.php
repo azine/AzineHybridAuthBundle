@@ -293,12 +293,12 @@ class AzineMergedBusinessNetworksProvider {
         $primaryCompany             = (property_exists($xingProfile, 'professional_experience') && property_exists($xingProfile->professional_experience, 'primary_company')) ? $xingProfile->professional_experience->primary_company : null;
         // company name and title are not always available.
         if($primaryCompany) {
-            $company = (property_exists($primaryCompany, 'name'))	? $primaryCompany->name        : '';
-            $title = (property_exists($primaryCompany, 'title'))	? $primaryCompany->title        : '';
-            if($title && $company) {
-                $newContact->headline = $title . " @ " . $company;
+			$newContact->company = (property_exists($primaryCompany, 'name'))	? $primaryCompany->name        : '';
+			$newContact->title = (property_exists($primaryCompany, 'title'))	? $primaryCompany->title        : '';
+            if($newContact->title && $newContact->company) {
+                $newContact->headline = $newContact->title . " @ " . $newContact->company;
             } else {
-                $newContact->headline = $title . $company;
+                $newContact->headline = $newContact->title . $newContact->company;
             }
         }
 

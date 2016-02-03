@@ -33,6 +33,12 @@ class UserContact {
 	
 	/* A short about_me */
 	public $description = NULL;
+
+	/* The users primary work-company */
+	public $company = NULL;
+
+	/* the users title */
+	public $title = NULL;
 	
 	/* User email. Not all of IDp grant access to the user email */
 	public $email = NULL;
@@ -71,6 +77,8 @@ class UserContact {
 								$description = null, 
 								$email = null,
 								$headline = null,
+								$company = null,
+								$title = null,
 								array $tags = null
 							){
 		$this->provider = $provider;
@@ -84,6 +92,8 @@ class UserContact {
 		$this->description = $description;
 		$this->email = $email;
 		$this->headline = $headline;
+		$this->company = $company;
+		$this->title = $title;
 		$this->tags = $tags;
 
 	}
