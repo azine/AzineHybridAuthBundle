@@ -91,7 +91,8 @@ class AzineHybridAuthJsonController extends Controller {
 
     	if($userId == null){
 			$cookieName = $this->getAzineHybridAuthService()->getCookieName($provider);
-	    	$profile = $this->getAzineHybridAuthService()->getProvider($request->cookies->get($cookieName), $provider)->getUserProfile();
+			$providerAdapter = $this->getAzineHybridAuthService()->getProvider($request->cookies->get($cookieName), $provider);
+	    	$profile = $providerAdapter->getUserProfile();
             if(!$profile->gender){
                 /* @var $genderGuesser AzineGenderGuesser */
                 $genderGuesser = $this->get('azine_hybrid_auth_gender_guesser');
