@@ -21,7 +21,7 @@
         "symfony/framework-bundle": "~2.1",
         "symfony/console": "~2.1",
         "symfony/finder": "~2.1",
-	    "hybridauth/hybridauth": "~2.3.0",
+	    "hybridauth/hybridauth": "~2.3",
         "monolog/monolog": "~1.6"
     },
     "autoload": {
