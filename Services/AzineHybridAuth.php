@@ -8,6 +8,8 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -52,20 +54,20 @@ class AzineHybridAuth {
 	/**
 	 *
 	 * @param UrlGeneratorInterface $router
-	 * @param SecurityContext $securityContext
+	 * @param TokenStorageInterface $tokenStorage
 	 * @param ObjectManager $manager
 	 * @param array $config
 	 * @param bool $storeForUser
 	 * @param $storeAsCookie
 	 */
-	public function __construct(UrlGeneratorInterface $router, SecurityContext $securityContext, ObjectManager $manager, $config, $storeForUser, $storeAsCookie){
+	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie){
 		$base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
 		$config[AzineHybridAuthExtension::BASE_URL] = $base_url;
 		$this->config = $config;
 		$this->objectManager = $manager;
 		$this->storeForUser = $storeForUser;
 		$this->storeAsCookie = $storeAsCookie;
-		$user = $securityContext->getToken()->getUser();
+		$user = $tokenStorage->getToken()->getUser();
         if($user instanceof UserInterface) {
 			$this->currentUser = $user;
         }
