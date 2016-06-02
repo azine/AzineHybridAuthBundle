@@ -28,6 +28,11 @@ class AzineMergedBusinessNetworksProvider {
 	private $providers;
 
 	/**
+	 * @var config of the providers
+	 */
+	private $providersConfig;
+
+	/**
 	 * @var array of provider ids that are loaded already
 	 */
 	private $loadedProviders;
@@ -66,9 +71,10 @@ class AzineMergedBusinessNetworksProvider {
 		$this->contacts = $session->get(self::CONTACTS_SESSION_NAME, array());
 		$this->loadedProviders = $session->get(self::LOADED_PROVIDERS_NAME, array());
 		$this->providers = array_keys($providers);
+		$this->providersConfig = $providers;
 		$this->session = $session;
 		$this->genderGuesser = $genderGuesser;
-        $this->contactFilter = $contactFilter;
+		$this->contactFilter = $contactFilter;
 	}
 
     /**
@@ -155,13 +161,15 @@ class AzineMergedBusinessNetworksProvider {
      */
 	public function getXingContacts(){
 		$api = $this->hybridAuth->getXingApi();
+		$userFields = implode(',', $this->providersConfig['xing']['fields']);
 		$fetchSize = 100;
 		$fetchOffset = 0;
 		$fetchMore = true;
 		$users = array();
 		try {
 			while ($fetchMore){
-				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email,professional_experience&offset=$fetchOffset");
+				$uri = sprintf('users/me/contacts?limit=%1$s&user_fields=%2$s&offset=%3$s', $fetchSize, $userFields, $fetchOffset);
+				$oResponse = $api->get($uri);
 				if(isset($oResponse->error_name)){
 					throw new \Exception($oResponse->error_name." : ".$oResponse->message);
 				}
@@ -191,6 +199,7 @@ class AzineMergedBusinessNetworksProvider {
      */
 	public function getLinkedInContacts(){
 		$api = $this->hybridAuth->getLinkedInApi();
+		$userFields = implode(',', $this->providersConfig['linkedin']['fields']);
 		$fetchSize = 500;
 		$fetchMore = true;
 		$fetchOffset = 0;
@@ -198,7 +207,8 @@ class AzineMergedBusinessNetworksProvider {
 
 		try{
 			while ($fetchMore){
-				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
+				$uri = sprintf('~/connections:(%1$s)?start=%2$s&count=%3$s', $userFields, $fetchOffset, $fetchSize);
+				$response = $api->profile($uri);
 				$connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
 				foreach ($connectionsXml->person as $person){
 					$users[] = $person;
