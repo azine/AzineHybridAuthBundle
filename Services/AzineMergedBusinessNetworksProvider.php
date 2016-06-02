@@ -287,48 +287,11 @@ class AzineMergedBusinessNetworksProvider {
 	 * @return UserContact
 	 */
     private function createUserContactFromXingProfile($xingProfile){
-        $newContact = new UserContact("Xing");
-        $newContact->identifier	    = (property_exists($xingProfile, 'id'))          	? $xingProfile->id                  : '';
-        $newContact->firstName 	    = (property_exists($xingProfile, 'first_name'))		? $xingProfile->first_name 	        : '';
-        $newContact->lastName		= (property_exists($xingProfile, 'last_name')) 		? $xingProfile->last_name 	        : '';
-        $newContact->displayName	= $newContact->firstName." ".$newContact->lastName;
-        $newContact->profileURL	    = (property_exists($xingProfile, 'permalink'))   	? $xingProfile->permalink           : '';
-        $newContact->photoURL       = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_96x96   : '';
-        $newContact->photoUrlBig    = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_256x256   : '';
-        $newContact->description	= (property_exists($xingProfile, 'interests'))   	? $xingProfile->interests           : '';
-        $newContact->description	.= (property_exists($xingProfile, 'haves'))   	    ? "\n".$xingProfile->haves           : '';
-        $newContact->description	.= (property_exists($xingProfile, 'wants'))   	    ? "\n".$xingProfile->wants           : '';
-        $newContact->email			= (property_exists($xingProfile, 'active_email'))	? $xingProfile->active_email        : '';
-        $newContact->gender		    = (property_exists($xingProfile, 'gender'))			? $xingProfile->gender              : '';
-        $primaryCompany             = (property_exists($xingProfile, 'professional_experience') && property_exists($xingProfile->professional_experience, 'primary_company')) ? $xingProfile->professional_experience->primary_company : null;
-        // company name and title are not always available.
-        if($primaryCompany) {
-			$newContact->company = (property_exists($primaryCompany, 'name'))	? $primaryCompany->name        : '';
-			$newContact->title = (property_exists($primaryCompany, 'title'))	? $primaryCompany->title        : '';
-            if($newContact->title && $newContact->company) {
-                $newContact->headline = $newContact->title . " @ " . $newContact->company;
-            } else {
-                $newContact->headline = $newContact->title . $newContact->company;
-            }
-        }
+				$newContact = new UserContact("Xing");
 
-        // My own priority: Homepage, blog, other, something else.
-        if (property_exists($xingProfile, 'web_profiles')) {
-            $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'homepage')) ? $xingProfile->web_profiles->homepage[0] : null;
-            if (null === $newContact->webSiteURL) {
-                $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'blog')) ? $xingProfile->web_profiles->blog[0] : null;
-            }
-            if (null === $newContact->webSiteURL) {
-                $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'other')) ? $xingProfile->web_profiles->other[0] : null;
-            }
-            // Just use *anything*!
-            if (null === $newContact->webSiteURL) {
-                foreach ($xingProfile->web_profiles as $aUrl) {
-                    $newContact->webSiteURL = $aUrl[0];
-                    break;
-                }
-            }
-        }
+				foreach ($xingProfile as $key => $value)  {
+						$newContact->setField($key, $value);
+				}
 
         return $newContact;
     }
