@@ -36,7 +36,8 @@ class AzineHybridAuthExtension extends Extension {
     const FILTER = "contact_filter";
     const GENDER_GUESSER = "gender_guesser";
     const STORE_FOR_USER = "store_for_user";
-    const STORE_AS_COOKIE = "store_as_cookie";
+		const STORE_AS_COOKIE = "store_as_cookie";
+		const FIELDS = "fields";
 
 
     /**

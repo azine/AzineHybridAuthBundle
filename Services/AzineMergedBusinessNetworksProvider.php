@@ -28,6 +28,11 @@ class AzineMergedBusinessNetworksProvider {
 	private $providers;
 
 	/**
+	 * @var config of the providers
+	 */
+	private $providersConfig;
+
+	/**
 	 * @var array of provider ids that are loaded already
 	 */
 	private $loadedProviders;
@@ -66,9 +71,10 @@ class AzineMergedBusinessNetworksProvider {
 		$this->contacts = $session->get(self::CONTACTS_SESSION_NAME, array());
 		$this->loadedProviders = $session->get(self::LOADED_PROVIDERS_NAME, array());
 		$this->providers = array_keys($providers);
+		$this->providersConfig = $providers;
 		$this->session = $session;
 		$this->genderGuesser = $genderGuesser;
-        $this->contactFilter = $contactFilter;
+		$this->contactFilter = $contactFilter;
 	}
 
     /**
@@ -155,13 +161,15 @@ class AzineMergedBusinessNetworksProvider {
      */
 	public function getXingContacts(){
 		$api = $this->hybridAuth->getXingApi();
+		$userFields = implode(',', $this->providersConfig['xing']['fields']);
 		$fetchSize = 100;
 		$fetchOffset = 0;
 		$fetchMore = true;
 		$users = array();
 		try {
 			while ($fetchMore){
-				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email,professional_experience&offset=$fetchOffset");
+				$uri = sprintf('users/me/contacts?limit=%1$s&user_fields=%2$s&offset=%3$s', $fetchSize, $userFields, $fetchOffset);
+				$oResponse = $api->get($uri);
 				if(isset($oResponse->error_name)){
 					throw new \Exception($oResponse->error_name." : ".$oResponse->message);
 				}
@@ -191,6 +199,7 @@ class AzineMergedBusinessNetworksProvider {
      */
 	public function getLinkedInContacts(){
 		$api = $this->hybridAuth->getLinkedInApi();
+		$userFields = implode(',', $this->providersConfig['linkedin']['fields']);
 		$fetchSize = 500;
 		$fetchMore = true;
 		$fetchOffset = 0;
@@ -198,7 +207,8 @@ class AzineMergedBusinessNetworksProvider {
 
 		try{
 			while ($fetchMore){
-				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
+				$uri = sprintf('~/connections:(%1$s)?start=%2$s&count=%3$s', $userFields, $fetchOffset, $fetchSize);
+				$response = $api->profile($uri);
 				$connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
 				foreach ($connectionsXml->person as $person){
 					$users[] = $person;
@@ -277,48 +287,11 @@ class AzineMergedBusinessNetworksProvider {
 	 * @return UserContact
 	 */
     private function createUserContactFromXingProfile($xingProfile){
-        $newContact = new UserContact("Xing");
-        $newContact->identifier	    = (property_exists($xingProfile, 'id'))          	? $xingProfile->id                  : '';
-        $newContact->firstName 	    = (property_exists($xingProfile, 'first_name'))		? $xingProfile->first_name 	        : '';
-        $newContact->lastName		= (property_exists($xingProfile, 'last_name')) 		? $xingProfile->last_name 	        : '';
-        $newContact->displayName	= $newContact->firstName." ".$newContact->lastName;
-        $newContact->profileURL	    = (property_exists($xingProfile, 'permalink'))   	? $xingProfile->permalink           : '';
-        $newContact->photoURL       = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_96x96   : '';
-        $newContact->photoUrlBig    = (property_exists($xingProfile, 'photo_urls'))   	? $xingProfile->photo_urls->size_256x256   : '';
-        $newContact->description	= (property_exists($xingProfile, 'interests'))   	? $xingProfile->interests           : '';
-        $newContact->description	.= (property_exists($xingProfile, 'haves'))   	    ? "\n".$xingProfile->haves           : '';
-        $newContact->description	.= (property_exists($xingProfile, 'wants'))   	    ? "\n".$xingProfile->wants           : '';
-        $newContact->email			= (property_exists($xingProfile, 'active_email'))	? $xingProfile->active_email        : '';
-        $newContact->gender		    = (property_exists($xingProfile, 'gender'))			? $xingProfile->gender              : '';
-        $primaryCompany             = (property_exists($xingProfile, 'professional_experience') && property_exists($xingProfile->professional_experience, 'primary_company')) ? $xingProfile->professional_experience->primary_company : null;
-        // company name and title are not always available.
-        if($primaryCompany) {
-			$newContact->company = (property_exists($primaryCompany, 'name'))	? $primaryCompany->name        : '';
-			$newContact->title = (property_exists($primaryCompany, 'title'))	? $primaryCompany->title        : '';
-            if($newContact->title && $newContact->company) {
-                $newContact->headline = $newContact->title . " @ " . $newContact->company;
-            } else {
-                $newContact->headline = $newContact->title . $newContact->company;
-            }
-        }
+				$newContact = new UserContact("Xing");
 
-        // My own priority: Homepage, blog, other, something else.
-        if (property_exists($xingProfile, 'web_profiles')) {
-            $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'homepage')) ? $xingProfile->web_profiles->homepage[0] : null;
-            if (null === $newContact->webSiteURL) {
-                $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'blog')) ? $xingProfile->web_profiles->blog[0] : null;
-            }
-            if (null === $newContact->webSiteURL) {
-                $newContact->webSiteURL = (property_exists($xingProfile->web_profiles, 'other')) ? $xingProfile->web_profiles->other[0] : null;
-            }
-            // Just use *anything*!
-            if (null === $newContact->webSiteURL) {
-                foreach ($xingProfile->web_profiles as $aUrl) {
-                    $newContact->webSiteURL = $aUrl[0];
-                    break;
-                }
-            }
-        }
+				foreach ($xingProfile as $key => $value)  {
+						$newContact->setField($key, $value);
+				}
 
         return $newContact;
     }
