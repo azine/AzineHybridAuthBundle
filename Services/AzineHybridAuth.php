@@ -39,6 +39,11 @@ class AzineHybridAuth {
 	private $storeAsCookie;
 
 	/**
+	 * @var int
+	 */
+	private $expiresInDays;
+
+	/**
 	 * Configured Instances of HybridAuth
 	 * @var array or HybridAuth
 	 */
@@ -53,23 +58,23 @@ class AzineHybridAuth {
 	/**
 	 *
 	 * @param UrlGeneratorInterface $router
+	 * @param UserInterface $user
 	 * @param TokenStorageInterface $tokenStorage
 	 * @param ObjectManager $manager
 	 * @param array $config
 	 * @param bool $storeForUser
 	 * @param $storeAsCookie
+	 * @param $expiresInDays
 	 */
-	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie){
+	public function __construct(UrlGeneratorInterface $router, UserInterface $user, ObjectManager $manager, $config, $storeForUser, $storeAsCookie, $expiresInDays){
 		$base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
 		$config[AzineHybridAuthExtension::BASE_URL] = $base_url;
 		$this->config = $config;
 		$this->objectManager = $manager;
 		$this->storeForUser = $storeForUser;
 		$this->storeAsCookie = $storeAsCookie;
-		$user = $tokenStorage->getToken()->getUser();
-        if($user instanceof UserInterface) {
-			$this->currentUser = $user;
-        }
+		$this->currentUser = $user;
+		$this->expiresInDays = $expiresInDays;
 	}
 
 
@@ -90,9 +95,22 @@ class AzineHybridAuth {
 		}
 		$restoredFromDB = false;
 		$sessionData = null;
-		if($this->storeForUser && $this->currentUser instanceof UserInterface){
+		$isExpiredSession = false;
+
+		$result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
+
+		if($result instanceof HybridAuthSessionData){
+
+			$isExpiredSession =  $this->isExpiredSession($result);
+		}
+
+		if($isExpiredSession){
+
+			$this->deleteSession($provider);
+		}
+
+		if(!$isExpiredSession && $this->storeForUser && $this->currentUser instanceof UserInterface){
 			// try from database
-			$result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
 			if($result){
 				$sessionData = $result->getSessionData();
 				$restoredFromDB = true;
@@ -124,43 +142,48 @@ class AzineHybridAuth {
 		$this->saveAuthSessionData($sessionData, $provider);
 
 		if($this->storeAsCookie){
-			return new Cookie($this->getCookieName($provider), gzdeflate($sessionData), new \DateTime("10 years"), '/', $request->getHost(), $request->isSecure(), true);
+			return new Cookie($this->getCookieName($provider), gzdeflate($sessionData), new \DateTime($this->expiresInDays .' days'), '/', $request->getHost(), $request->isSecure(), true);
 		}
 		return null;
 	}
 
-    /**
-     * Delete the HybridAuthSessionData entity from the database
-     * @param $provider
-     */
-    public function deleteSession($provider){
-        if($this->currentUser instanceof UserInterface) {
-            $result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
-            if ($result) {
-                $this->objectManager->remove($result);
-                $this->objectManager->flush();
-            }
-        }
-    }
+	/**
+	 * Delete the HybridAuthSessionData entity from the database
+	 * @param $provider
+	 */
+	public function deleteSession($provider){
+		if($this->currentUser instanceof UserInterface) {
+			$result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
+			if ($result) {
+				$this->objectManager->remove($result);
+				$this->objectManager->flush();
+			}
+		}
+	}
 
-    /**
-     * Save as HybridAuthSessionData entity to the database.
-     * Checks the bundle configuration before saving.
-     * @param $sessionData
-     * @param $provider
-     */
+	/**
+	 * Save as HybridAuthSessionData entity to the database.
+	 * Checks the bundle configuration before saving.
+	 * @param $sessionData
+	 * @param $provider
+	 */
 	private function saveAuthSessionData($sessionData, $provider){
-        if($this->storeForUser && $this->currentUser instanceof UserInterface) {
-            $hybridAuthData = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => strtolower($provider)));
-            if (!$hybridAuthData) {
-                $hybridAuthData = new HybridAuthSessionData();
-                $hybridAuthData->setUserName($this->currentUser->getUsername());
-                $hybridAuthData->setProvider(strtolower($provider));
-                $this->objectManager->persist($hybridAuthData);
-            }
-            $hybridAuthData->setSessionData($sessionData);
-            $this->objectManager->flush();
-        }
+		if($this->storeForUser && $this->currentUser instanceof UserInterface) {
+			$hybridAuthData = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => strtolower($provider)));
+			if (!$hybridAuthData) {
+				$hybridAuthData = new HybridAuthSessionData();
+				$hybridAuthData->setUserName($this->currentUser->getUsername());
+				$hybridAuthData->setProvider(strtolower($provider));
+
+				$expirationDate = new \DateTime();
+				$expirationDate->modify('+ '. $this->expiresInDays .' day');
+
+				$hybridAuthData->setExpiresAt($expirationDate);
+				$this->objectManager->persist($hybridAuthData);
+			}
+			$hybridAuthData->setSessionData($sessionData);
+			$this->objectManager->flush();
+		}
 	}
 
 	public function getCookieName($provider){
@@ -234,6 +257,22 @@ class AzineHybridAuth {
      */
 	public function getLinkedInApi(){
 		return $this->getLinkedIn()->api();
+	}
+
+	/**
+	 * Get if auth token is expired
+	 * @param HybridAuthSessionData $data
+	 *
+	 * @return boolean
+	 */
+	public function isExpiredSession(HybridAuthSessionData $data)
+	{
+		if($data->getExpiresAt() <  new \DateTime()){
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

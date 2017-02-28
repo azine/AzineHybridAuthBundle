@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
 			->scalarNode(AzineHybridAuthExtension::DEBUG_FILE)->defaultValue("%kernel.logs_dir%/hybrid_auth_%kernel.environment%.log")->end()
 			->scalarNode(AzineHybridAuthExtension::STORE_FOR_USER)->defaultValue(false)->end()
 			->scalarNode(AzineHybridAuthExtension::STORE_AS_COOKIE)->defaultValue(true)->end()
+			->scalarNode(AzineHybridAuthExtension::EXPIRES_IN_DAYS)->defaultValue(55)->end()
         	->arrayNode(AzineHybridAuthExtension::PROVIDERS)
         		->useAttributeAsKey(AzineHybridAuthExtension::PROVIDER_NAME)
                 ->requiresAtLeastOneElement()

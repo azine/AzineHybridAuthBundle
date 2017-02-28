@@ -37,6 +37,7 @@ class AzineHybridAuthExtension extends Extension {
     const GENDER_GUESSER = "gender_guesser";
     const STORE_FOR_USER = "store_for_user";
     const STORE_AS_COOKIE = "store_as_cookie";
+    const EXPIRES_IN_DAYS = "expires_in_days";
 
 
     /**
@@ -53,6 +54,7 @@ class AzineHybridAuthExtension extends Extension {
         $container->setParameter(self::PREFIX."_".self::PROVIDERS,		$config[self::PROVIDERS]);
         $container->setParameter(self::PREFIX."_".self::STORE_FOR_USER,	$config[self::STORE_FOR_USER]);
         $container->setParameter(self::PREFIX."_".self::STORE_AS_COOKIE,$config[self::STORE_AS_COOKIE]);
+        $container->setParameter(self::PREFIX."_".self::EXPIRES_IN_DAYS,$config[self::EXPIRES_IN_DAYS]);
 
         $container->setAlias(self::PREFIX."_".self::FILTER,         $config[self::FILTER]);
         $container->setAlias(self::PREFIX."_".self::MERGER,         $config[self::MERGER]);
