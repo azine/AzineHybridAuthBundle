@@ -63,8 +63,9 @@ class AzineHybridAuth {
 	 * @param array $config
 	 * @param bool $storeForUser
 	 * @param $storeAsCookie
+	 * @param $expiresInDays
 	 */
-	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie){
+	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie, $expiresInDays){
 		$base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
 		$config[AzineHybridAuthExtension::BASE_URL] = $base_url;
 		$this->config = $config;
@@ -75,6 +76,7 @@ class AzineHybridAuth {
 		if($user instanceof UserInterface) {
 			$this->currentUser = $user;
 		}
+		$this->expiresInDays = $expiresInDays;
 	}
 
 
