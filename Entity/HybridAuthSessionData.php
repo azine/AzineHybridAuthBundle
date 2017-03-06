@@ -24,6 +24,11 @@ class HybridAuthSessionData
      */
     private $sessionData;
 
+    /**
+     * @var \DateTime
+     */
+    private $expiresAt;
+
 
     /**
      * Get id
@@ -107,5 +112,27 @@ class HybridAuthSessionData
     public function getProvider()
     {
         return $this->provider;
+    }
+    
+    /**
+     * @param \DateTime $date
+     *
+     * @return HybridAuthSessionData
+     */
+    public function setExpiresAt(\DateTime $date = null)
+    {
+        $this->expiresAt = $date;
+
+        return $this;
+    }
+
+    /**
+     * Get expiresAt
+     *
+     * @return \DateTime
+     */
+    public function getExpiresAt()
+    {
+        return $this->expiresAt;
     }
 }

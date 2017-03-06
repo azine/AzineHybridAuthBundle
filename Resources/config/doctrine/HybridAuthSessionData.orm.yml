@@ -16,4 +16,6 @@ Azine\HybridAuthBundle\Entity\HybridAuthSessionData:
         sessionData:
             type: text
             column: session_data
+        expiresAt:
+            type: datetime
     lifecycleCallbacks: {  }

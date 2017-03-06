@@ -8,7 +8,6 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -39,6 +38,11 @@ class AzineHybridAuth {
 	private $storeAsCookie;
 
 	/**
+	 * @var int
+	 */
+	private $expiresInDays;
+
+	/**
 	 * Configured Instances of HybridAuth
 	 * @var array or HybridAuth
 	 */
@@ -58,8 +62,9 @@ class AzineHybridAuth {
 	 * @param array $config
 	 * @param bool $storeForUser
 	 * @param $storeAsCookie
+	 * @param $expiresInDays
 	 */
-	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie){
+	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie, $expiresInDays){
 		$base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
 		$config[AzineHybridAuthExtension::BASE_URL] = $base_url;
 		$this->config = $config;
@@ -70,6 +75,7 @@ class AzineHybridAuth {
         if($user instanceof UserInterface) {
 			$this->currentUser = $user;
         }
+        $this->expiresInDays = $expiresInDays;
 	}
 
 
@@ -90,9 +96,20 @@ class AzineHybridAuth {
 		}
 		$restoredFromDB = false;
 		$sessionData = null;
-		if($this->storeForUser && $this->currentUser instanceof UserInterface){
-			// try from database
-			$result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
+        $isExpiredSession = false;
+
+        // try to get from database
+        $result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
+
+        if($result instanceof HybridAuthSessionData){
+            $isExpiredSession =  $this->isExpiredSession($result);
+        }
+
+        if($isExpiredSession){
+            $this->deleteSession($provider);
+        }
+
+        if(!$isExpiredSession && $this->storeForUser && $this->currentUser instanceof UserInterface){
 			if($result){
 				$sessionData = $result->getSessionData();
 				$restoredFromDB = true;
@@ -124,7 +141,7 @@ class AzineHybridAuth {
 		$this->saveAuthSessionData($sessionData, $provider);
 
 		if($this->storeAsCookie){
-			return new Cookie($this->getCookieName($provider), gzdeflate($sessionData), new \DateTime("10 years"), '/', $request->getHost(), $request->isSecure(), true);
+			return new Cookie($this->getCookieName($provider), gzdeflate($sessionData), new \DateTime($this->expiresInDays .' days'), '/', $request->getHost(), $request->isSecure(), true);
 		}
 		return null;
 	}
@@ -156,6 +173,7 @@ class AzineHybridAuth {
                 $hybridAuthData = new HybridAuthSessionData();
                 $hybridAuthData->setUserName($this->currentUser->getUsername());
                 $hybridAuthData->setProvider(strtolower($provider));
+                $hybridAuthData->setExpiresAt(new \DateTime('+ '. $this->expiresInDays .' days'));
                 $this->objectManager->persist($hybridAuthData);
             }
             $hybridAuthData->setSessionData($sessionData);
@@ -200,7 +218,7 @@ class AzineHybridAuth {
 		$connected = $adapter->isUserConnected();
 		return $connected;
 	}
-	
+
 	/**
      * Get the Xing Adapter
      * @return \Hybrid_Providers_XING
@@ -236,4 +254,19 @@ class AzineHybridAuth {
 		return $this->getLinkedIn()->api();
 	}
 
+	/**
+	 * Get if auth token is expired
+	 * @param HybridAuthSessionData $data
+	 *
+	 * @return boolean
+	 */
+	public function isExpiredSession(HybridAuthSessionData $data)
+	{
+		if($data->getExpiresAt() <  new \DateTime()){
+
+			return true;
+		}
+
+		return false;
+	}
 }
