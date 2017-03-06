@@ -7,26 +7,35 @@ use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 class AzineHybridAuthTest extends TestCase
 {
 
-    private $router;
-    private $entityManager;
-    private $user;
     private $azineHybridAuth;
-
 
     protected function setUp()
     {
-        $this->user = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
+        $user = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
 
-        $this->router = $this->getMockBuilder('Symfony\Bundle\FrameworkBundle\Routing\Router')
+        $router = $this->getMockBuilder('Symfony\Bundle\FrameworkBundle\Routing\Router')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->entityManager = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
+        $entityManager = $this->getMockBuilder('Doctrine\Common\Persistence\ObjectManager')
             ->disableOriginalConstructor()
             ->getMock();
+
+        $tokenStorage = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $token = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\AnonymousToken')
+            ->setConstructorArgs(array('key', $user))
+            ->getMock();
+
+        $tokenStorage->expects($this->any())
+            ->method('getToken')
+            ->will($this->returnValue($token));
+
 
         $config = array('endpoint_route' => 'route', 'providers' => 'providers', 'debug_mode' => 'debug_mode', 'debug_file' => 'debug_file');
-        $this->azineHybridAuth = new AzineHybridAuth($this->router, $this->user, $this->entityManager,
+        $this->azineHybridAuth = new AzineHybridAuth($router, $tokenStorage, $entityManager,
             $config, false, true, 55);
     }
 

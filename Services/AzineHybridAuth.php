@@ -58,23 +58,23 @@ class AzineHybridAuth {
 	/**
 	 *
 	 * @param UrlGeneratorInterface $router
-	 * @param UserInterface $user
 	 * @param TokenStorageInterface $tokenStorage
 	 * @param ObjectManager $manager
 	 * @param array $config
 	 * @param bool $storeForUser
 	 * @param $storeAsCookie
-	 * @param $expiresInDays
 	 */
-	public function __construct(UrlGeneratorInterface $router, UserInterface $user, ObjectManager $manager, $config, $storeForUser, $storeAsCookie, $expiresInDays){
+	public function __construct(UrlGeneratorInterface $router, TokenStorageInterface $tokenStorage, ObjectManager $manager, $config, $storeForUser, $storeAsCookie){
 		$base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
 		$config[AzineHybridAuthExtension::BASE_URL] = $base_url;
 		$this->config = $config;
 		$this->objectManager = $manager;
 		$this->storeForUser = $storeForUser;
 		$this->storeAsCookie = $storeAsCookie;
-		$this->currentUser = $user;
-		$this->expiresInDays = $expiresInDays;
+		$user = $tokenStorage->getToken()->getUser();
+		if($user instanceof UserInterface) {
+			$this->currentUser = $user;
+		}
 	}
 
 
@@ -218,16 +218,16 @@ class AzineHybridAuth {
 	 * @return bool true if access to the provider is granted for this app.
 	 */
 	public function isConnected(Request $request, $provider_id){
-        $sessionData = $request->cookies->get($this->getCookieName($provider_id));
+		$sessionData = $request->cookies->get($this->getCookieName($provider_id));
 		$adapter = $this->getInstance($sessionData, $provider_id)->getAdapter($provider_id);
 		$connected = $adapter->isUserConnected();
 		return $connected;
 	}
-	
+
 	/**
-     * Get the Xing Adapter
-     * @return \Hybrid_Providers_XING
-     */
+	 * Get the Xing Adapter
+	 * @return \Hybrid_Providers_XING
+	 */
 	public function getXing(){
 		return $this->getProvider(null, "xing");
 	}
@@ -250,11 +250,11 @@ class AzineHybridAuth {
 		return $this->getProvider(null, "linkedin");
 	}
 
-    /**
-     * Get the LinkedIn api (LinkedIn PHP-client)
-     *
-     * @return \LinkedIn
-     */
+	/**
+	 * Get the LinkedIn api (LinkedIn PHP-client)
+	 *
+	 * @return \LinkedIn
+	 */
 	public function getLinkedInApi(){
 		return $this->getLinkedIn()->api();
 	}
@@ -274,5 +274,4 @@ class AzineHybridAuth {
 
 		return false;
 	}
-
 }
