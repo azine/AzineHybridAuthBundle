@@ -96,25 +96,29 @@ class AzineHybridAuth {
 		}
 		$restoredFromDB = false;
 		$sessionData = null;
-        $isExpiredSession = false;
 
-        // try to get from database
-        $result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
+        // try to get session-info from database
+        if($this->currentUser instanceof UserInterface) {
+            $isExpiredSession = false;
+            $username = $this->currentUser->getUsername();
+            $result = $this->objectManager->getRepository("AzineHybridAuthBundle:HybridAuthSessionData")->findOneBy(array('username' => $username, 'provider' => $provider));
 
-        if($result instanceof HybridAuthSessionData){
-            $isExpiredSession =  $this->isExpiredSession($result);
+            if ($result instanceof HybridAuthSessionData) {
+                $isExpiredSession = $this->isExpiredSession($result);
+            }
+
+
+            if ($isExpiredSession) {
+                $this->deleteSession($provider);
+            }
+
+            if (!$isExpiredSession && $this->storeForUser) {
+                if ($result) {
+                    $sessionData = $result->getSessionData();
+                    $restoredFromDB = true;
+                }
+            }
         }
-
-        if($isExpiredSession){
-            $this->deleteSession($provider);
-        }
-
-        if(!$isExpiredSession && $this->storeForUser && $this->currentUser instanceof UserInterface){
-			if($result){
-				$sessionData = $result->getSessionData();
-				$restoredFromDB = true;
-			}
-		}
 		if($sessionData === null && $cookieSessionData !== null) {
 			// try from cookie
 			$sessionData = gzinflate($cookieSessionData);
