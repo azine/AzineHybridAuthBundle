@@ -154,6 +154,7 @@ class AzineMergedBusinessNetworksProvider {
      * @return array of UserContact
      */
 	public function getXingContacts(){
+        /** @var \OAuth1Client $api */
 		$api = $this->hybridAuth->getXingApi();
 		$fetchSize = 100;
 		$fetchOffset = 0;
@@ -190,6 +191,7 @@ class AzineMergedBusinessNetworksProvider {
      * @return array of UserContact
      */
 	public function getLinkedInContacts(){
+	    /** @var \OAuth2Client $api */
 		$api = $this->hybridAuth->getLinkedInApi();
 		$fetchSize = 500;
 		$fetchMore = true;
@@ -198,13 +200,17 @@ class AzineMergedBusinessNetworksProvider {
 
 		try{
 			while ($fetchMore){
-				$response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
-				$connectionsXml = new \SimpleXMLElement( $response['linkedin'] );
-				foreach ($connectionsXml->person as $person){
-					$users[] = $person;
-				}
-				$fetchMore = $fetchSize == sizeof($connectionsXml->person);
-				$fetchOffset = $fetchOffset + $fetchSize;
+				$response = $api->get("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
+				if($response && array_key_exists('linkedin', $response)) {
+                    $connectionsXml = new \SimpleXMLElement($response['linkedin']);
+                    foreach ($connectionsXml->person as $person) {
+                        $users[] = $person;
+                    }
+                    $fetchMore = $fetchSize == sizeof($connectionsXml->person);
+                    $fetchOffset = $fetchOffset + $fetchSize;
+                } else {
+				    $fetchMore = false;
+                }
 			}
 		}
 		catch( \LinkedInException $e ){
