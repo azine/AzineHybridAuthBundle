@@ -22,14 +22,14 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                         }
                         // merge the old and new contacts
                         $this->contacts = $this->merger->merge($this->loadedProviders);
-        
+
                         // sort all contacts
                         usort($this->contacts, array($this->sorter, 'compare'));
-        
+
                         $this->session->set(self::CONTACTS_SESSION_NAME, $this->contacts);
                         $this->session->save();
                     }
-        
+
                     // return one page
                     return array_slice($this->contactFilter->filter($this->contacts, $filterParams), $offset, $pageSize, true);
                 }
@@ -53,7 +53,7 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                 } elseif ($provider == "LinkedIn"){
                     return $this->getLinkedInContacts();
                 }
-        
+
                 $userContacts = array();
                 foreach ($this->hybridAuth->getProvider($provider)->getUserContacts() as $next){
                     $nextContact = new UserContact($provider);
@@ -93,8 +93,8 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                 catch(\Exception $e) {
                     throw new \Exception('Could not fetch contacts. Xing returned an error.', $e->getCode(), $e);
                 }
-        
-        
+
+
                 // Create the contacts array.
                 $xingContacts = array();
                 foreach($users as $connection) {
@@ -107,7 +107,7 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                     $nextContact->description	= (property_exists($connection, 'interests'))   	? $connection->interests    : '';
                     $nextContact->email			= (property_exists($connection, 'active_email'))	? $connection->active_email : '';
                     $nextContact->gender		= (property_exists($connection, 'gender'))			? $connection->gender : '';
-        
+
                     // headline title @ company
                     if(property_exists($connection, 'professional_experience')){
                         $jobTitle = $connection->professional_experience->primary_company->title;
@@ -116,7 +116,7 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                     } else {
                         $nextContact->headline	= "";
                     }
-        
+
                     // My own priority: Homepage, blog, other, something else.
                     if (property_exists($connection, 'web_profiles')) {
                         $nextContact->webSiteURL = (property_exists($connection->web_profiles, 'homepage')) ? $connection->web_profiles->homepage[0] : null;
@@ -134,18 +134,18 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                             }
                         }
                     }
-        
+
                     // We use the largest picture available.
                     if (property_exists($connection, 'photo_urls') && property_exists($connection->photo_urls, 'large')) {
                         $nextContact->photoURL = (property_exists($connection->photo_urls, 'large')) ? $connection->photo_urls->large : '';
                     }
-        
+
                     $xingContacts[] = $nextContact;
                 }
-        
+
                 return $xingContacts;
             }
-        
+
          */
     }
 
@@ -158,7 +158,7 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                 $fetchMore = true;
                 $fetchOffset = 0;
                 $users = array();
-        
+
                 try{
                     while ($fetchMore){
                         $response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline)?start=$fetchOffset&count=$fetchSize");
@@ -173,13 +173,13 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                 catch( \LinkedInException $e ){
                     throw new Exception( "User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e );
                 }
-        
-        
+
+
                 $contacts = array();
-        
+
                 foreach( $users as $connection ) {
                     $nextContact = new UserContact("LinkedIn");
-        
+
                     $nextContact->identifier  = (string) $connection->id;
                     $nextContact->firstName = (string) $connection->{'first-name'};
                     $nextContact->lastName = (string) $connection->{'last-name'};
@@ -188,13 +188,13 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                     $nextContact->photoURL    = (string) $connection->{'picture-url'};
                     $nextContact->description = (string) $connection->{'summary'};
                     $nextContact->gender 	 = $this->genderGuesser->gender($nextContact->firstName, 5);
-        
+
                     $nextContact->headline	= (property_exists($connection, 'headline'))			? (string) $connection->headline : '';
                     $nextContact->headline = str_replace(" at ", " @ ", $nextContact->headline);
-        
+
                     $contacts[] = $nextContact;
                 }
-        
+
                 return $contacts;
             }
          */
@@ -209,7 +209,7 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                     $this->session->set(self::LOADED_PROVIDERS_NAME, $this->loadedProviders);
                     $this->session->save();
                 }
-        
+
                 foreach ($this->loadedProviders[$provider] as $userContact){
                     if($userContact->identifier == $contactId){
                         return $userContact;
@@ -217,7 +217,7 @@ class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCas
                 }
                 return null;
             }
-        
+
          */
     }
 

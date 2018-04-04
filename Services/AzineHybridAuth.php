@@ -1,59 +1,61 @@
 <?php
+
 namespace Azine\HybridAuthBundle\Services;
 
 use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
-
 use Azine\HybridAuthBundle\Entity\HybridAuthSessionData;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class AzineHybridAuth {
-	/**
-	 * ID of the sessionDataCookie
-	 */
-	const cookieName = "azine_hybridauth_session";
+class AzineHybridAuth
+{
+    /**
+     * ID of the sessionDataCookie.
+     */
+    const cookieName = 'azine_hybridauth_session';
 
-	/**
-	 * @var ObjectManager
-	 */
-	private $objectManager;
+    /**
+     * @var ObjectManager
+     */
+    private $objectManager;
 
-	/**
-	 * @var UserInterface
-	 */
-	private $currentUser;
+    /**
+     * @var UserInterface
+     */
+    private $currentUser;
 
-	/**
-	 * @var bool
-	 */
-	private $storeForUser;
+    /**
+     * @var bool
+     */
+    private $storeForUser;
 
-	/**
-	 * @var bool
-	 */
-	private $storeAsCookie;
+    /**
+     * @var bool
+     */
+    private $storeAsCookie;
 
-	/**
-	 * @var int
-	 */
-	private $expiresInDays;
+    /**
+     * @var int
+     */
+    private $expiresInDays;
 
-	/**
-	 * Configured Instances of HybridAuth
-	 * @var array or HybridAuth
-	 */
-	private $instances = array();
+    /**
+     * Configured Instances of HybridAuth.
+     *
+     * @var array or HybridAuth
+     */
+    private $instances = array();
 
-	/**
-	 * HybridAuth configuration
-	 * @var array
-	 */
-	private $config;
+    /**
+     * HybridAuth configuration.
+     *
+     * @var array
+     */
+    private $config;
 
     /**
      * @param UrlGeneratorInterface $router
@@ -121,32 +123,35 @@ class AzineHybridAuth {
             // try from cookie
             $sessionData = gzinflate($cookieSessionData);
 
-			// user is looged in but auth session is not yet stored in db => store now
-			if(!$restoredFromDB){
-				$this->saveAuthSessionData($sessionData, $provider);
-			}
-		}
-		if($sessionData) {
-			$hybridAuth->restoreSessionData($sessionData);
-		}
+            // user is looged in but auth session is not yet stored in db => store now
+            if (!$restoredFromDB) {
+                $this->saveAuthSessionData($sessionData, $provider);
+            }
+        }
+        if ($sessionData) {
+            $hybridAuth->restoreSessionData($sessionData);
+        }
 
-		return $hybridAuth;
-	}
+        return $hybridAuth;
+    }
 
-	/**
-	 * @param Request $request
-	 * @param $provider
-	 * @param $sessionData
-	 * @return Cookie | null
-	 */
-	public function storeHybridAuthSessionData(Request $request, $provider, $sessionData){
-		$this->saveAuthSessionData($sessionData, $provider);
+    /**
+     * @param Request $request
+     * @param $provider
+     * @param $sessionData
+     *
+     * @return Cookie | null
+     */
+    public function storeHybridAuthSessionData(Request $request, $provider, $sessionData)
+    {
+        $this->saveAuthSessionData($sessionData, $provider);
 
-		if($this->storeAsCookie){
-			return new Cookie($this->getCookieName($provider), gzdeflate($sessionData), new \DateTime($this->expiresInDays .' days'), '/', $request->getHost(), $request->isSecure(), true);
-		}
-		return null;
-	}
+        if ($this->storeAsCookie) {
+            return new Cookie($this->getCookieName($provider), gzdeflate($sessionData), new \DateTime($this->expiresInDays.' days'), '/', $request->getHost(), $request->isSecure(), true);
+        }
+
+        return null;
+    }
 
     /**
      * Delete the HybridAuthSessionData entity from the database.
@@ -191,30 +196,34 @@ class AzineHybridAuth {
         }
     }
 
-	public function getCookieName($provider){
-		return self::cookieName."_".strtolower($provider);
-	}
+    public function getCookieName($provider)
+    {
+        return self::cookieName.'_'.strtolower($provider);
+    }
 
-	/**
-	 * Use this function to get access to a HybridAuthProvider.
-	 *
-	 * Calling this method will log the user in (make a roundtrip to the providers site and back to your site again)
-	 * and call the page again that you came from.
-	 *
-	 * When logged (allready) it will return the hybridAuth provider.
-	 *
-	 * @param $authSessionData
-	 * @param string $provider_id
-	 * @param boolean $require_login
-	 * @return \Hybrid_Provider_Model
-	 */
-	public function getProvider($authSessionData, $provider_id, $require_login = true){
-		$adapter = $this->getInstance($authSessionData, $provider_id)->getAdapter($provider_id);
-		if($require_login && !$adapter->isUserConnected()){
-			$adapter->login();
-		}
-		return $adapter;
-	}
+    /**
+     * Use this function to get access to a HybridAuthProvider.
+     *
+     * Calling this method will log the user in (make a roundtrip to the providers site and back to your site again)
+     * and call the page again that you came from.
+     *
+     * When logged (allready) it will return the hybridAuth provider.
+     *
+     * @param $authSessionData
+     * @param string $provider_id
+     * @param bool   $require_login
+     *
+     * @return \Hybrid_Provider_Model
+     */
+    public function getProvider($authSessionData, $provider_id, $require_login = true)
+    {
+        $adapter = $this->getInstance($authSessionData, $provider_id)->getAdapter($provider_id);
+        if ($require_login && !$adapter->isUserConnected()) {
+            $adapter->login();
+        }
+
+        return $adapter;
+    }
 
     /**
      * Check if the current user has allowed access to the given provider.
@@ -243,23 +252,25 @@ class AzineHybridAuth {
         return $this->getProvider(null, 'xing');
     }
 
-	/**
-	 * Get the Xing api (OAuthClient)
-	 *
-	 * @return \OAuth1Client
-	 */
-	public function getXingApi(){
-		return $this->getXing()->api();
-	}
+    /**
+     * Get the Xing api (OAuthClient).
+     *
+     * @return \OAuth1Client
+     */
+    public function getXingApi()
+    {
+        return $this->getXing()->api();
+    }
 
-	/**
-	 * Get the LinkedIn Adapter
-	 *
-	 * @return \Hybrid_Providers_LinkedIn
-	 */
-	public function getLinkedIn(){
-		return $this->getProvider(null, "linkedin");
-	}
+    /**
+     * Get the LinkedIn Adapter.
+     *
+     * @return \Hybrid_Providers_LinkedIn
+     */
+    public function getLinkedIn()
+    {
+        return $this->getProvider(null, 'linkedin');
+    }
 
     /**
      * Get the LinkedIn api (LinkedIn PHP-client).
@@ -271,19 +282,19 @@ class AzineHybridAuth {
         return $this->getLinkedIn()->api();
     }
 
-	/**
-	 * Get if auth token is expired
-	 * @param HybridAuthSessionData $data
-	 *
-	 * @return boolean
-	 */
-	public function isExpiredSession(HybridAuthSessionData $data)
-	{
-		if($data->getExpiresAt() <  new \DateTime()){
+    /**
+     * Get if auth token is expired.
+     *
+     * @param HybridAuthSessionData $data
+     *
+     * @return bool
+     */
+    public function isExpiredSession(HybridAuthSessionData $data)
+    {
+        if ($data->getExpiresAt() < new \DateTime()) {
+            return true;
+        }
 
-			return true;
-		}
-
-		return false;
-	}
+        return false;
+    }
 }
