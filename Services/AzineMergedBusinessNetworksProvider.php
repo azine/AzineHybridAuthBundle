@@ -153,27 +153,26 @@ class AzineMergedBusinessNetworksProvider {
      * @throws \Exception
      * @return array of UserContact
      */
-	public function getXingContacts(){
-        /** @var \OAuth1Client $api */
-		$api = $this->hybridAuth->getXingApi();
-		$fetchSize = 100;
-		$fetchOffset = 0;
-		$fetchMore = true;
-		$users = array();
-		try {
-			while ($fetchMore){
-				$oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email,professional_experience&offset=$fetchOffset");
-				if(isset($oResponse->error_name)){
-					throw new \Exception($oResponse->error_name." : ".$oResponse->message);
-				}
-				$users = array_merge($users, $oResponse->contacts->users);
-				$fetchOffset = $fetchOffset + $fetchSize;
-				$fetchMore = $fetchSize == sizeof($oResponse->contacts->users);
-			}
-		}
-		catch(\Exception $e) {
-			throw new \Exception('Could not fetch contacts. Xing returned an error.', $e->getCode(), $e);
-		}
+    public function getXingContacts()
+    {
+        $api = $this->hybridAuth->getXingApi();
+        $fetchSize = 100;
+        $fetchOffset = 0;
+        $fetchMore = true;
+        $users = array();
+        try {
+            while ($fetchMore) {
+                $oResponse = $api->get("users/me/contacts?limit=$fetchSize&user_fields=id,display_name,permalink,web_profiles,photo_urls,first_name,last_name,interests,gender,active_email,professional_experience&offset=$fetchOffset");
+                if (isset($oResponse->error_name)) {
+                    throw new \Exception($oResponse->error_name.' : '.$oResponse->message);
+                }
+                $users = array_merge($users, $oResponse->contacts->users);
+                $fetchOffset = $fetchOffset + $fetchSize;
+                $fetchMore = $fetchSize == sizeof($oResponse->contacts->users);
+            }
+        } catch (\Exception $e) {
+            throw new \Exception('Could not fetch contacts. Xing returned an error.', $e->getCode(), $e);
+        }
 
 
 		// Create the contacts array.
@@ -190,32 +189,27 @@ class AzineMergedBusinessNetworksProvider {
      * @throws \Exception
      * @return array of UserContact
      */
-	public function getLinkedInContacts(){
-	    /** @var \OAuth2Client $api */
-		$api = $this->hybridAuth->getLinkedInApi();
-		$fetchSize = 500;
-		$fetchMore = true;
-		$fetchOffset = 0;
-		$users = array();
+    public function getLinkedInContacts()
+    {
+        $api = $this->hybridAuth->getLinkedInApi();
+        $fetchSize = 500;
+        $fetchMore = true;
+        $fetchOffset = 0;
+        $users = array();
 
-		try{
-			while ($fetchMore){
-				$response = $api->get("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
-				if($response && array_key_exists('linkedin', $response)) {
-                    $connectionsXml = new \SimpleXMLElement($response['linkedin']);
-                    foreach ($connectionsXml->person as $person) {
-                        $users[] = $person;
-                    }
-                    $fetchMore = $fetchSize == sizeof($connectionsXml->person);
-                    $fetchOffset = $fetchOffset + $fetchSize;
-                } else {
-				    $fetchMore = false;
+        try {
+            while ($fetchMore) {
+                $response = $api->profile("~/connections:(id,first-name,last-name,picture-url,public-profile-url,summary,headline,specialities)?start=$fetchOffset&count=$fetchSize");
+                $connectionsXml = new \SimpleXMLElement($response['linkedin']);
+                foreach ($connectionsXml->person as $person) {
+                    $users[] = $person;
                 }
-			}
-		}
-		catch( \LinkedInException $e ){
-			throw new \Exception( "User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e );
-		}
+                $fetchMore = $fetchSize == sizeof($connectionsXml->person);
+                $fetchOffset = $fetchOffset + $fetchSize;
+            }
+        } catch (\LinkedInException $e) {
+            throw new \Exception("User contacts request failed! {$this->providerId} returned an error.", $e->getCode(), $e);
+        }
 
 		$contacts = array();
 		foreach( $users as $connection ) {

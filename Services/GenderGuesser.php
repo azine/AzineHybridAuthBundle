@@ -21,12 +21,13 @@ interface GenderGuesser {
 	 */
 	public function guess($firstName, $looseness=1);
 
-	/**
-	 * Guess the gender for a given firstname. The best guess is returned, ignoring the low confidence level.
-	 * 
-	 * @param \string $firstName
-	 * @param int $looseness
-	 * @return \string sex => m | f | ''
-	 */
-	public function gender($firstName, $looseness=1);	
+    /**
+     * Guess the gender for a given firstname. The guesser will return an array with.
+     *
+     * @param \string $firstName
+     * @param int     $looseness
+     *
+     * @return \string sex => m | f
+     */
+    public function gender($firstName, $looseness = 1);
 }
