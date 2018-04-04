@@ -31,7 +31,7 @@ before_install:
 
 before_script:
   - phpenv config-add travis.php.ini
-  - travis_wait composer require symfony/symfony:${SYMFONY_VERSION} --prefer-source --no-update -v
+  - travis_wait composer require symfony/${SYMFONY_VERSION} --prefer-source --no-update -v
   - travis_wait composer install --prefer-source
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
   - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
