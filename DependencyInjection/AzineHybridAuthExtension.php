@@ -26,7 +26,7 @@ class AzineHybridAuthExtension extends Extension {
 	const ENABLED = "enabled";
 	const SCOPE = "scope";
 	const KEYS = "keys";
-	const KEY = "key";
+	const ID = "id";
 	const SECRET = "secret";
 	const WRAPPER = "wrapper";
 	const WRAPPER_PATH = "path";
