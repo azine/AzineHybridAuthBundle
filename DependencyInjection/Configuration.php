@@ -44,7 +44,7 @@ class Configuration implements ConfigurationInterface
 				        ->end() // wrapper
 				        ->arrayNode(AzineHybridAuthExtension::KEYS)
 				        	->children()
-					        	->scalarNode(AzineHybridAuthExtension::KEY)->cannotBeEmpty()->end()
+					        	->scalarNode(AzineHybridAuthExtension::ID)->cannotBeEmpty()->end()
 					        	->scalarNode(AzineHybridAuthExtension::SECRET)->cannotBeEmpty()->end()
 					        ->end() // array
 				        ->end() // keys
