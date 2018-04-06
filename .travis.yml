@@ -35,7 +35,6 @@ before_script:
   - travis_wait composer install --prefer-source
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini
   - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
-#  - ls -a /home/travis/build/azine/* -R
 
 script:
   - travis_wait vendor/phpunit/phpunit/phpunit --coverage-clover=coverage.clover /home/travis/build/azine/AzineHybridAuthBundle/Tests/
