@@ -162,6 +162,25 @@ The first call will take a fair bit longer than the following ones, because on t
 both networks are fetched and stored in one big array, sorted by last name. This collection is then stored in the 
 user session. 
 
+# Contribute
+Contributions are very welcome. Please fork the repository and issue your pull-request against the master branch.
+
+The PR should:
+- contain a description what the PR solves or adds to the bundle (reference existing issues if applicable)
+- contain clean code with some iniline documentation and phpdocs, no "pure whitespace" changes.
+- respect the [Symfony best practices](http://symfony.com/doc/current/bundles/best_practices.html) and coding style
+- have phpunit tests covering the new feature or fix
+- result in a 'green' build for your branch on [travis-ci.org](https://travis-ci.org/azine/AzineHybridAuthBundle/branches) before you issue the PR
+
+## Code style
+You can check the code style with the `php-cs-fixer`. Optionally you can set up a pre-commit hook which contains the `php-cs-fixer` check. Also see https://github.com/FriendsOfPHP/PHP-CS-Fixer
+
+All you have to do is to move `pre-commit.sample` file from `commit-hooks/` to `.git/hooks/` folder and rename it to `pre-commit`.
+
+`php-cs-fixer` will check the style of your new added code each time you commit and apply fixes to the commit.
+
+To run `php-cs-fixer` manually, install dependencies (`composer install`) and execute `php vendor/friendsofphp/php-cs-fixer/php-cs-fixer --diff --dry-run -v fix --config=.php_cs.dist .`
+
 
 ## Build-Status ec.
 
