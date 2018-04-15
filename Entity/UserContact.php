@@ -1,56 +1,56 @@
 <?php
+
 namespace Azine\HybridAuthBundle\Entity;
 
+class UserContact
+{
+    /* The Unique contact user ID */
+    public $identifier = null;
 
-class UserContact {
+    /* User website, blog, web page */
+    public $webSiteURL = null;
 
-	/* The Unique contact user ID */
-	public $identifier = NULL;
-	
-	/* User website, blog, web page */
-	public $webSiteURL = NULL;
-	
-	/* URL link to profile page on the IDp web site */
-	public $profileURL = NULL;
+    /* URL link to profile page on the IDp web site */
+    public $profileURL = null;
 
-	/* URL link to user photo or avatar */
-	public $photoURL = NULL;
+    /* URL link to user photo or avatar */
+    public $photoURL = null;
 
     /* Url link to user photo or avatar (bigger)*/
-    public $photoUrlBig = NULL;
+    public $photoUrlBig = null;
 
     /* Gender */
-	public $gender = null;
-	
-	/* The users last name */
-	public $firstName = null;
+    public $gender = null;
 
-	/* The users first name */
-	public $lastName = null;
+    /* The users last name */
+    public $firstName = null;
 
-	/* User displayName provided by the IDp or a concatenation of first and last name */
-	public $displayName = NULL;
-	
-	/* A short about_me */
-	public $description = NULL;
+    /* The users first name */
+    public $lastName = null;
 
-	/* The users primary work-company */
-	public $company = NULL;
+    /* User displayName provided by the IDp or a concatenation of first and last name */
+    public $displayName = null;
 
-	/* the users title */
-	public $title = NULL;
-	
-	/* User email. Not all of IDp grant access to the user email */
-	public $email = NULL;
-	
-	/* Prvider id */
-	public $provider = NULL;
-	
-	/* For Xing & LinkedIn usually job-title @ main company */
-	public $headline = NULL;
+    /* A short about_me */
+    public $description = null;
 
-	/* array of tags associated with this user. Null if not yet loaded. */
-	public $tags = NULL;
+    /* The users primary work-company */
+    public $company = null;
+
+    /* the users title */
+    public $title = null;
+
+    /* User email. Not all of IDp grant access to the user email */
+    public $email = null;
+
+    /* Prvider id */
+    public $provider = null;
+
+    /* For Xing & LinkedIn usually job-title @ main company */
+    public $headline = null;
+
+    /* array of tags associated with this user. Null if not yet loaded. */
+    public $tags = null;
 
     /**
      * @param $provider
@@ -64,39 +64,36 @@ class UserContact {
      * @param string | null $description
      * @param string | null $email
      * @param string | null $headline
-     * @param array | null $tags array of strings
+     * @param array | null  $tags        array of strings
      */
     public function __construct($provider,
-								$gender = null,
-								$firstName = null, 
-								$lastName = null,
-								$identifier = null, 
-								$webSiteURL = null,
-								$profileURL = null,
-								$photoURL = null,
-								$description = null, 
-								$email = null,
-								$headline = null,
-								$company = null,
-								$title = null,
-								array $tags = null
-							){
-		$this->provider = $provider;
-		$this->firstName = $firstName;
-		$this->lastName = $lastName;
-	    $this->identifier = $identifier;
-		$this->webSiteURL = $webSiteURL;
-		$this->profileURL = $profileURL;
-		$this->photoURL = $photoURL;
-		$this->displayName = $firstName." ".$lastName;
-		$this->description = $description;
-		$this->email = $email;
-		$this->headline = $headline;
-		$this->company = $company;
-		$this->title = $title;
-		$this->tags = $tags;
-
-	}
-
+                                $gender = null,
+                                $firstName = null,
+                                $lastName = null,
+                                $identifier = null,
+                                $webSiteURL = null,
+                                $profileURL = null,
+                                $photoURL = null,
+                                $description = null,
+                                $email = null,
+                                $headline = null,
+                                $company = null,
+                                $title = null,
+                                array $tags = null
+                            ) {
+        $this->provider = $provider;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->identifier = $identifier;
+        $this->webSiteURL = $webSiteURL;
+        $this->profileURL = $profileURL;
+        $this->photoURL = $photoURL;
+        $this->displayName = $firstName.' '.$lastName;
+        $this->description = $description;
+        $this->email = $email;
+        $this->headline = $headline;
+        $this->company = $company;
+        $this->title = $title;
+        $this->tags = $tags;
+    }
 }
-

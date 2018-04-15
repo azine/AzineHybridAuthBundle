@@ -2,15 +2,13 @@
 
 namespace Azine\HybridAuthBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
- * HybridAuthSessionData
+ * HybridAuthSessionData.
  */
 class HybridAuthSessionData
 {
     /**
-     * @var integer
+     * @var int
      */
     private $id;
 
@@ -29,11 +27,10 @@ class HybridAuthSessionData
      */
     private $expiresAt;
 
-
     /**
-     * Get id
+     * Get id.
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -41,9 +38,10 @@ class HybridAuthSessionData
     }
 
     /**
-     * Set username
+     * Set username.
      *
      * @param string $username
+     *
      * @return HybridAuthSessionData
      */
     public function setUsername($username)
@@ -54,9 +52,9 @@ class HybridAuthSessionData
     }
 
     /**
-     * Get username
+     * Get username.
      *
-     * @return string 
+     * @return string
      */
     public function getUsername()
     {
@@ -64,9 +62,10 @@ class HybridAuthSessionData
     }
 
     /**
-     * Set sessionData
+     * Set sessionData.
      *
      * @param string $sessionData
+     *
      * @return HybridAuthSessionData
      */
     public function setSessionData($sessionData)
@@ -77,24 +76,25 @@ class HybridAuthSessionData
     }
 
     /**
-     * Get sessionData
+     * Get sessionData.
      *
-     * @return string 
+     * @return string
      */
     public function getSessionData()
     {
         return $this->sessionData;
     }
+
     /**
      * @var string
      */
     private $provider;
 
-
     /**
-     * Set provider
+     * Set provider.
      *
      * @param string $provider
+     *
      * @return HybridAuthSessionData
      */
     public function setProvider($provider)
@@ -105,15 +105,15 @@ class HybridAuthSessionData
     }
 
     /**
-     * Get provider
+     * Get provider.
      *
-     * @return string 
+     * @return string
      */
     public function getProvider()
     {
         return $this->provider;
     }
-    
+
     /**
      * @param \DateTime $date
      *
@@ -127,7 +127,7 @@ class HybridAuthSessionData
     }
 
     /**
-     * Get expiresAt
+     * Get expiresAt.
      *
      * @return \DateTime
      */
