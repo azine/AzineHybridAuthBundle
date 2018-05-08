@@ -39,6 +39,7 @@ class AzineHybridAuthExtension extends Extension {
     const STORE_FOR_USER = "store_for_user";
     const STORE_AS_COOKIE = "store_as_cookie";
     const EXPIRES_IN_DAYS = "expires_in_days";
+    const LINKED_IN = 'LinkedIn';
 
 
     /**
@@ -48,6 +49,14 @@ class AzineHybridAuthExtension extends Extension {
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+
+        $linkedInKey = $config[self::PROVIDERS][self::LINKED_IN][self::KEYS][self::KEY];
+
+        if($linkedInKey != null){
+
+            $config[self::PROVIDERS][self::LINKED_IN][self::KEYS][self::ID] = $linkedInKey;
+            @trigger_error('The option keys.key for LinkedIn provider is deprecated you should use option keys.id in future versions to avoid error', E_USER_DEPRECATED);
+        }
 
         $container->setParameter(self::PREFIX."_".self::ENDPOINT_ROUTE,	$config[self::ENDPOINT_ROUTE]);
         $container->setParameter(self::PREFIX."_".self::DEBUG, 			$config[self::DEBUG]);

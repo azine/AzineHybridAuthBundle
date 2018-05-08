@@ -44,19 +44,9 @@ class Configuration implements ConfigurationInterface
 				        ->end() // wrapper
 				        ->arrayNode(AzineHybridAuthExtension::KEYS)
 				        	->children()
-                                ->scalarNode(AzineHybridAuthExtension::KEY)
-                                    ->defaultValue('')
-                                    ->beforeNormalization()
-                                        ->always()
-                                        ->then(function ($v) {
-                                            $this->id = $v;
-                                            @trigger_error('The option keys.key is deprecated you should use option keys.id to avoid error', E_USER_DEPRECATED);
-                                        })
-                                    ->end()
-                                ->end()
-                                ->scalarNode(AzineHybridAuthExtension::ID)
-                                    ->defaultValue($this->id)->cannotBeEmpty()->end()
-					        	->scalarNode(AzineHybridAuthExtension::SECRET)->cannotBeEmpty()->end()
+                                ->scalarNode(AzineHybridAuthExtension::KEY)->cannotBeEmpty()->end()
+                                ->scalarNode(AzineHybridAuthExtension::ID)->defaultValue('')->end()
+                                ->scalarNode(AzineHybridAuthExtension::SECRET)->cannotBeEmpty()->end()
 					        ->end() // array
 				        ->end() // keys
 					->end() //children
