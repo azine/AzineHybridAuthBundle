@@ -24,6 +24,7 @@ class AzineHybridAuthExtension extends Extension
     const ENABLED = 'enabled';
     const SCOPE = 'scope';
     const KEYS = 'keys';
+    const ID = 'id';
     const KEY = 'key';
     const SECRET = 'secret';
     const WRAPPER = 'wrapper';
@@ -48,6 +49,11 @@ class AzineHybridAuthExtension extends Extension
         $container->setParameter(self::PREFIX.'_'.self::ENDPOINT_ROUTE, $config[self::ENDPOINT_ROUTE]);
         $container->setParameter(self::PREFIX.'_'.self::DEBUG, $config[self::DEBUG]);
         $container->setParameter(self::PREFIX.'_'.self::DEBUG_FILE, $config[self::DEBUG_FILE]);
+
+        // workaround for hybridauth/hybridauth inconsistency between OAuth1 and OAuth2 clients
+        foreach ($config[self::PROVIDERS] as $providerName => $providerConfig){
+            $config[self::PROVIDERS][$providerName][self::KEYS][self::ID] = $providerConfig[self::KEYS][self::KEY];
+        }
         $container->setParameter(self::PREFIX.'_'.self::PROVIDERS, $config[self::PROVIDERS]);
         $container->setParameter(self::PREFIX.'_'.self::STORE_FOR_USER, $config[self::STORE_FOR_USER]);
         $container->setParameter(self::PREFIX.'_'.self::STORE_AS_COOKIE, $config[self::STORE_AS_COOKIE]);
