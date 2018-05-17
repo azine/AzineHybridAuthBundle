@@ -103,7 +103,7 @@ class AzineHybridAuth
         $isExpiredSession = false;
 
         $result = null;
-        if($this->currentUser instanceof UserInterface) {
+        if ($this->currentUser instanceof UserInterface) {
             $result = $this->objectManager->getRepository('AzineHybridAuthBundle:HybridAuthSessionData')->findOneBy(array('username' => $this->currentUser->getUsername(), 'provider' => $provider));
         }
 

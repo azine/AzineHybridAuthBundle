@@ -51,7 +51,7 @@ class AzineHybridAuthExtension extends Extension
         $container->setParameter(self::PREFIX.'_'.self::DEBUG_FILE, $config[self::DEBUG_FILE]);
 
         // workaround for hybridauth/hybridauth inconsistency between OAuth1 and OAuth2 clients
-        foreach ($config[self::PROVIDERS] as $providerName => $providerConfig){
+        foreach ($config[self::PROVIDERS] as $providerName => $providerConfig) {
             $config[self::PROVIDERS][$providerName][self::KEYS][self::ID] = $providerConfig[self::KEYS][self::KEY];
         }
         $container->setParameter(self::PREFIX.'_'.self::PROVIDERS, $config[self::PROVIDERS]);
