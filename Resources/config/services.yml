@@ -8,28 +8,28 @@ services:
     azine_hybrid_auth_service:
         class:  Azine\HybridAuthBundle\Services\AzineHybridAuth
         arguments:
-            router:               "@router"
-            tokenStorage:      "@security.token_storage"
-            entityManager:        "@doctrine.orm.entity_manager"
-            config:
+            $router:               "@router"
+            $tokenStorage:      "@security.token_storage"
+            $manager:        "@doctrine.orm.entity_manager"
+            $config:
                 endpoint_route:   "%azine_hybrid_auth_endpoint_route%"
                 providers:        "%azine_hybrid_auth_providers%"
-                debug_mode:       "%azine_hybrid_auth_debug%" 
+                debug_mode:       "%azine_hybrid_auth_debug%"
                 debug_file:       "%azine_hybrid_auth_debug_file%"
-            store_for_user:   "%azine_hybrid_auth_store_for_user%"
-            store_as_cookie:  "%azine_hybrid_auth_store_as_cookie%"
-            expires_in_days:  "%azine_hybrid_auth_expires_in_days%"
+            $storeForUser:   "%azine_hybrid_auth_store_for_user%"
+            $storeAsCookie:  "%azine_hybrid_auth_store_as_cookie%"
+            $expiresInDays:  "%azine_hybrid_auth_expires_in_days%"
 
     azine_business_networks_provider_service:
         class:  Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider
         arguments:
-            hybridAuth:     "@azine_hybrid_auth_service"
-            session:        "@session"
-            sorter:         "@azine_hybrid_auth_contact_sorter"
-            merger:         "@azine_hybrid_auth_contact_merger"
-            genderGuesser:  "@azine_hybrid_auth_gender_guesser"
-            contactFilter:  "@azine_hybrid_auth_contact_filter"
-            providers:      "%azine_hybrid_auth_providers%"
+            $hybridAuth:     "@azine_hybrid_auth_service"
+            $session:        "@session"
+            $sorter:         "@azine_hybrid_auth_contact_sorter"
+            $merger:         "@azine_hybrid_auth_contact_merger"
+            $genderGuesser:  "@azine_hybrid_auth_gender_guesser"
+            $contactFilter:  "@azine_hybrid_auth_contact_filter"
+            $providers:      "%azine_hybrid_auth_providers%"
             
     azine_hybrid_auth_contact_filter_default:
         class: Azine\HybridAuthBundle\Services\AzineContactFilter
