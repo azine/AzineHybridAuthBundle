@@ -24,6 +24,10 @@ matrix:
         - SYMFONY_VERSION=lts:^3
         - cs_fixer=cs_dry_run
 
+  exclude:
+    - php: 5.6
+      env: SYMFONY_VERSION=lts:^4
+
 sudo: false
 
 before_install:
