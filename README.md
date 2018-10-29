@@ -184,10 +184,9 @@ To run `php-cs-fixer` manually, install dependencies (`composer install`) and ex
 
 ## Build-Status ec.
 
-[![Build Status](https://travis-ci.org/azine/hybridauth-bundle.png)](https://travis-ci.org/azine/hybridauth-bundle)
+[![Build Status](https://api.travis-ci.org/azine/AzineHybridAuthBundle.svg)](https://travis-ci.org/azine/AzineHybridAuthBundle)
 [![Total Downloads](https://poser.pugx.org/azine/hybridauth-bundle/downloads.png)](https://packagist.org/packages/azine/hybridauth-bundle)
 [![Latest Stable Version](https://poser.pugx.org/azine/hybridauth-bundle/v/stable.png)](https://packagist.org/packages/azine/hybridauth-bundle)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/)
-[![Code Coverage](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/hybridauth-bundle/)
-[![Dependency Status](https://www.versioneye.com/user/projects/567eaeb3eb4f47003b000001/badge.svg?style=flat)](https://www.versioneye.com/user/projects/567eaeb3eb4f47003b000001)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/)
+[![Code Coverage](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/)
 
