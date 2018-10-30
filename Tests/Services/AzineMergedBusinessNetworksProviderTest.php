@@ -3,8 +3,9 @@
 namespace Azine\HybridAuthBundle\Tests\Services;
 
 use Azine\HybridAuthBundle\Services\AzineMergedBusinessNetworksProvider;
+use Azine\HybridAuthBundle\Tests\AzineTestCase;
 
-class AzineMergedBusinessNetworksProviderTest extends \PHPUnit_Framework_TestCase
+class AzineMergedBusinessNetworksProviderTest extends AzineTestCase
 {
     public function testGetContactProfiles()
     {

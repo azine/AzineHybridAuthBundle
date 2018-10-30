@@ -1,10 +1,11 @@
 <?php
 
-namespace Azine\HybridAuthBundle\Services;
+namespace Azine\HybridAuthBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Azine\HybridAuthBundle\Services\AzineGenderGuesser;
+use Azine\HybridAuthBundle\Tests\AzineTestCase;
 
-class AzineGenderGuesserTest extends TestCase
+class AzineGenderGuesserTest extends AzineTestCase
 {
     public function testGuess()
     {

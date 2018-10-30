@@ -1,10 +1,11 @@
 <?php
 
-namespace Azine\HybridAuthBundle\Services;
+namespace Azine\HybridAuthBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Azine\HybridAuthBundle\Services\AzineContactFilter;
+use Azine\HybridAuthBundle\Tests\AzineTestCase;
 
-class AzineContactFilterTest extends TestCase
+class AzineContactFilterTest extends AzineTestCase
 {
     public function testFilter()
     {

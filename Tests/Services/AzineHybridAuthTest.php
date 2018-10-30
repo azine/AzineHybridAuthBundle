@@ -1,11 +1,12 @@
 <?php
 
-namespace Azine\HybridAuthBundle\Services;
+namespace Azine\HybridAuthBundle\Tests\Services;
 
 use Azine\HybridAuthBundle\Entity\HybridAuthSessionData;
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Azine\HybridAuthBundle\Services\AzineHybridAuth;
+use Azine\HybridAuthBundle\Tests\AzineTestCase;
 
-class AzineHybridAuthTest extends TestCase
+class AzineHybridAuthTest extends AzineTestCase
 {
     private $azineHybridAuth;
 

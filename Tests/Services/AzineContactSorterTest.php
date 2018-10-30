@@ -1,11 +1,12 @@
 <?php
 
-namespace Azine\HybridAuthBundle\Services;
+namespace Azine\HybridAuthBundle\Tests\Services;
 
 use Azine\HybridAuthBundle\Entity\UserContact;
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Azine\HybridAuthBundle\Services\AzineContactSorter;
+use Azine\HybridAuthBundle\Tests\AzineTestCase;
 
-class AzineContactSorterTest extends TestCase
+class AzineContactSorterTest extends AzineTestCase
 {
     public function testCompare()
     {

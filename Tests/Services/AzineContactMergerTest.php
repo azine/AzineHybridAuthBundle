@@ -1,10 +1,11 @@
 <?php
 
-namespace Azine\HybridAuthBundle\Services;
+namespace Azine\HybridAuthBundle\Tests\Services;
 
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Azine\HybridAuthBundle\Services\AzineContactMerger;
+use Azine\HybridAuthBundle\Tests\AzineTestCase;
 
-class AzineContactMergerTest extends TestCase
+class AzineContactMergerTest extends AzineTestCase
 {
     public function testMerge()
     {
