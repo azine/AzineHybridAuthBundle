@@ -12,8 +12,6 @@ class AzineHybridAuthTest extends AzineTestCase
 
     protected function setUp()
     {
-        $user = $this->getMockBuilder('FOS\UserBundle\Model\User')->getMock();
-
         $router = $this->getMockBuilder('Symfony\Bundle\FrameworkBundle\Routing\Router')
             ->disableOriginalConstructor()
             ->getMock();
@@ -27,7 +25,7 @@ class AzineHybridAuthTest extends AzineTestCase
             ->getMock();
 
         $token = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\AnonymousToken')
-            ->setConstructorArgs(array('key', $user))
+            ->disableOriginalConstructor()
             ->getMock();
 
         $tokenStorage->expects($this->any())
