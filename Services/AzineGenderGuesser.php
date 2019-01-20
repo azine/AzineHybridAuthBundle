@@ -5,16 +5,16 @@ namespace Azine\HybridAuthBundle\Services;
 /**
  * 	https://github.com/petewarden/genderfromname/blob/master/genderfromname.php.
 
-    // GenderFromName.php
-    //
-    // Originally by Jon Orwant, <orwant@readable.com>
-    // Created 10 Mar 97
-    //
-    // Version 0.30 - Jul 29 2003 by
-    // Eamon Daly, <eamon@eamondaly.com>
-    //
-    // Ported to PHP - Dec 31 2009 by
-    // Pete Warden, <pete@petewarden.com>
+ // GenderFromName.php
+ //
+ // Originally by Jon Orwant, <orwant@readable.com>
+ // Created 10 Mar 97
+ //
+ // Version 0.30 - Jul 29 2003 by
+ // Eamon Daly, <eamon@eamondaly.com>
+ //
+ // Ported to PHP - Dec 31 2009 by
+ // Pete Warden, <pete@petewarden.com>
 
  * @author dominik
  */
