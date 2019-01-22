@@ -32,6 +32,5 @@
     "autoload": {
         "psr-0": { "Azine\\HybridAuthBundle": "" }
     },
-    "minimum-stability": "dev",
     "target-dir": "Azine/HybridAuthBundle"
 }
