@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Hybridauth\Hybridauth;
 
 class AzineHybridAuth
 {
@@ -71,6 +72,7 @@ class AzineHybridAuth
         $base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
         $config[AzineHybridAuthExtension::BASE_URL] = $base_url;
         $this->config = $config;
+        $this->config['callback'] = $base_url;
         $this->objectManager = $manager;
         $this->storeForUser = $storeForUser;
         $this->storeAsCookie = $storeAsCookie;
@@ -95,7 +97,7 @@ class AzineHybridAuth
         if (array_key_exists($provider, $this->instances)) {
             $hybridAuth = $this->instances[$provider];
         } else {
-            $hybridAuth = new \Hybrid_Auth($this->config);
+            $hybridAuth = new Hybridauth($this->config);
             $this->instances[$provider] = $hybridAuth;
         }
         $restoredFromDB = false;
@@ -221,7 +223,7 @@ class AzineHybridAuth
     public function getProvider($authSessionData, $provider_id, $require_login = true)
     {
         $adapter = $this->getInstance($authSessionData, $provider_id)->getAdapter($provider_id);
-        if ($require_login && !$adapter->isUserConnected()) {
+        if ($require_login && !$adapter->isConnected()) {
             $adapter->login();
         }
 
@@ -240,7 +242,7 @@ class AzineHybridAuth
     {
         $sessionData = $request->cookies->get($this->getCookieName($provider_id));
         $adapter = $this->getInstance($sessionData, $provider_id)->getAdapter($provider_id);
-        $connected = $adapter->isUserConnected();
+        $connected = $adapter->isConnected();
 
         return $connected;
     }

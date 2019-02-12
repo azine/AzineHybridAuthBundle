@@ -65,7 +65,7 @@ class AzineHybridAuthJsonController extends Controller
             try {
                 $adapter = $hybridAuth->getAdapter($provider);
                 setcookie($cookieName, null, -1, '/', $request->getHost(), $request->isSecure(), true);
-                $adapter->login();
+                $adapter->authenticate();
             } catch (\Exception $e) {
                 throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
             }

@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Hybridauth\HttpClient\Util;
 
 class HybridEndPointController extends Controller
 {
@@ -84,7 +85,7 @@ class HybridEndPointController extends Controller
                 '{RETURN_TO_URL}',
                 str_replace(
                         array('<', '>', '"', "'", '&'), array('&lt;', '&gt;', '&quot;', '&apos;', '&amp;'),
-                        $this->hybridAuth->getCurrentUrl(false)
+                        Util::getCurrentUrl()
                 ),
                 file_get_contents(dirname(__FILE__).'/resources/openid_xrds.xml')
         );
@@ -99,7 +100,7 @@ class HybridEndPointController extends Controller
     {
         $output = str_replace(
                 '{X_XRDS_LOCATION}',
-                htmlentities($this->hybridAuth->getCurrentUrl(false), ENT_QUOTES, 'UTF-8').'?get=openid_xrds&v='.\Hybrid_Auth::$version,
+                htmlentities(Util::getCurrentUrl(), ENT_QUOTES, 'UTF-8').'?get=openid_xrds&v='.\Hybrid_Auth::$version,
                 file_get_contents(dirname(__FILE__).'/resources/openid_realm.html')
         );
 

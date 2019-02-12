@@ -105,7 +105,7 @@ class AzineMergedBusinessNetworksProvider
     {
         $newContactsCount = 0;
         foreach ($this->providers as $provider) {
-            $connected = $this->hybridAuth->getProvider(null, $provider, false)->isUserConnected();
+            $connected = $this->hybridAuth->getProvider(null, $provider, false)->isConnected();
             if ($connected && (!array_key_exists($provider, $this->loadedProviders) || 0 == sizeof($this->loadedProviders[$provider]))) {
                 $newContacts = $this->getUserContactsFor($provider);
                 $this->loadedProviders[$provider] = $newContacts;
