@@ -22,7 +22,7 @@
         "symfony/console": "~2.7|^3.0|^4.0",
         "symfony/finder": "~2.7|^3.0|^4.0",
         "symfony/security-bundle": "~2.7|^3.0|^4.0",
-        "hybridauth/hybridauth": "~3.0.0",
+        "hybridauth/hybridauth": "3.0.x-dev",
         "monolog/monolog": "~1.6,>=1.6.0"
     },
     "require-dev": {
@@ -32,6 +32,5 @@
     "autoload": {
         "psr-0": { "Azine\\HybridAuthBundle": "" }
     },
-    "minimum-stability": "dev",
     "target-dir": "Azine/HybridAuthBundle"
 }
