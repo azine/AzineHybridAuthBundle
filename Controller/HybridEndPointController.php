@@ -33,35 +33,61 @@ class HybridEndPointController extends Controller
      */
     public function processAction(Request $request)
     {
-        // Get the request Vars
-        $this->requestQuery = $request->query;
+        $provider = 'linkedin';
+        $cookieName = $this->getAzineHybridAuthService()->getCookieName($provider);
 
-        // init the hybridAuth instance
-        $provider = trim(strip_tags($this->requestQuery->get('hauth_start')));
-        $cookieName = $this->get('azine_hybrid_auth_service')->getCookieName($provider);
-        $this->hybridAuth = $this->get('azine_hybrid_auth_service')->getInstance($request->cookies->get($cookieName), $provider);
+//        try {
+        $hybridAuth = $this->getAzineHybridAuthService()->getInstance($request->cookies->get($cookieName), $provider);
+        $connected = $hybridAuth->isConnectedWith($provider);
+//        } catch (\Exception $e) {
+//            $response = new RedirectResponse($this->generateUrl($callbackRoute));
+//
+//            return $response;
+//        }
 
-        // If openid_policy requested, we return our policy document
-        if ($this->requestQuery->has('get') && 'openid_policy' == $this->requestQuery->get('get')) {
-            return $this->processOpenidPolicy();
+        if (!$connected) {
+            try {
+                $adapter = $hybridAuth->getAdapter($provider);
+                setcookie($cookieName, null, -1, '/', $request->getHost(), $request->isSecure(), true);
+                $adapter->authenticate();
+                $this->getAzineHybridAuthService()->storeHybridAuthSessionData($request, $provider, $adapter->getAccessToken());
+            } catch (\Exception $e) {
+                throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
+            }
         }
 
-        // If openid_xrds requested, we return our XRDS document
-        if ($this->requestQuery->has('get') && 'openid_xrds' == $this->requestQuery->get('get')) {
-            return $this->processOpenidXRDS();
-        }
+        $response = new RedirectResponse($this->generateUrl('user_edit'));
 
-        // If we get a hauth.start
-        if ($this->requestQuery->has('hauth_start') && $this->requestQuery->get('hauth_start')) {
-            return $this->processAuthStart();
-        }
-        // Else if hauth.done
-        elseif ($this->requestQuery->has('hauth_done') && $this->requestQuery->get('hauth_done')) {
-            return $this->processAuthDone($request);
-        }
-        // Else we advertise our XRDS document, something supposed to be done from the Realm URL page
-
-        return $this->processOpenidRealm();
+        return $response;
+//        // Get the request Vars
+//        $this->requestQuery = $request->query;
+//
+//        // init the hybridAuth instance
+//        $provider = trim(strip_tags($this->requestQuery->get('hauth_start')));
+//        $cookieName = $this->get('azine_hybrid_auth_service')->getCookieName($provider);
+//        $this->hybridAuth = $this->get('azine_hybrid_auth_service')->getInstance($request->cookies->get($cookieName), $provider);
+//
+//        // If openid_policy requested, we return our policy document
+//        if ($this->requestQuery->has('get') && 'openid_policy' == $this->requestQuery->get('get')) {
+//            return $this->processOpenidPolicy();
+//        }
+//
+//        // If openid_xrds requested, we return our XRDS document
+//        if ($this->requestQuery->has('get') && 'openid_xrds' == $this->requestQuery->get('get')) {
+//            return $this->processOpenidXRDS();
+//        }
+//
+//        // If we get a hauth.start
+//        if ($this->requestQuery->has('hauth_start') && $this->requestQuery->get('hauth_start')) {
+//            return $this->processAuthStart();
+//        }
+//        // Else if hauth.done
+//        elseif ($this->requestQuery->has('hauth_done') && $this->requestQuery->get('hauth_done')) {
+//            return $this->processAuthDone($request);
+//        }
+//        // Else we advertise our XRDS document, something supposed to be done from the Realm URL page
+//
+//        return $this->processOpenidRealm();
     }
 
     /**
