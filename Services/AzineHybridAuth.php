@@ -5,12 +5,12 @@ namespace Azine\HybridAuthBundle\Services;
 use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
 use Azine\HybridAuthBundle\Entity\HybridAuthSessionData;
 use Doctrine\Common\Persistence\ObjectManager;
+use Hybridauth\Hybridauth;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Hybridauth\Hybridauth;
 
 class AzineHybridAuth
 {
@@ -84,13 +84,13 @@ class AzineHybridAuth
     }
 
     /**
-     * Get a Hybrid_Auth instance initialised for the given provider.
+     * Get a AdapterInterface instance initialised for the given provider.
      * HybridAuthSessions will be restored from DB and/or cookies, according to the bundle configuration.
      *
      * @param $cookieSessionData
      * @param $provider
      *
-     * @return \Hybrid_Auth
+     * @return \Hybridauth\Adapter\AdapterInterface
      */
     public function getInstance($cookieSessionData, $provider)
     {
@@ -100,6 +100,8 @@ class AzineHybridAuth
             $hybridAuth = new Hybridauth($this->config);
             $this->instances[$provider] = $hybridAuth;
         }
+
+        $adapter = $this->instances[$provider]->getAdapter($provider);
         $restoredFromDB = false;
         $sessionData = null;
         $isExpiredSession = false;
@@ -134,10 +136,10 @@ class AzineHybridAuth
             }
         }
         if ($sessionData) {
-            $hybridAuth->restoreSessionData($sessionData);
-        }
 
-        return $hybridAuth;
+            $adapter->setAccessToken(json_decode($sessionData, true));
+        }
+        return $adapter;
     }
 
     /**
@@ -207,7 +209,7 @@ class AzineHybridAuth
     }
 
     /**
-     * Use this function to get access to a HybridAuthProvider.
+     * Use this function to get access to a \Hybridauth\Adapter\AdapterInterface instqnce.
      *
      * Calling this method will log the user in (make a roundtrip to the providers site and back to your site again)
      * and call the page again that you came from.
@@ -218,11 +220,11 @@ class AzineHybridAuth
      * @param string $provider_id
      * @param bool   $require_login
      *
-     * @return \Hybrid_Provider_Model
+     * @return \Hybridauth\Adapter\AdapterInterface
      */
     public function getProvider($authSessionData, $provider_id, $require_login = true)
     {
-        $adapter = $this->getInstance($authSessionData, $provider_id)->getAdapter($provider_id);
+        $adapter = $this->getInstance($authSessionData, $provider_id);
         if ($require_login && !$adapter->isConnected()) {
             $adapter->login();
         }
@@ -241,7 +243,7 @@ class AzineHybridAuth
     public function isConnected(Request $request, $provider_id)
     {
         $sessionData = $request->cookies->get($this->getCookieName($provider_id));
-        $adapter = $this->getInstance($sessionData, $provider_id)->getAdapter($provider_id);
+        $adapter = $this->getInstance($sessionData, $provider_id);
         $connected = $adapter->isConnected();
 
         return $connected;

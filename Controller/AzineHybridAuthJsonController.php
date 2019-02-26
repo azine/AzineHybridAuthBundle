@@ -50,8 +50,8 @@ class AzineHybridAuthJsonController extends Controller
             $this->getAzineHybridAuthService()->deleteSession($provider);
         }
         try {
-            $hybridAuth = $this->getAzineHybridAuthService()->getInstance($request->cookies->get($cookieName), $provider);
-            $connected = $hybridAuth->isConnectedWith($provider);
+            $adapter = $this->getAzineHybridAuthService()->getInstance($request->cookies->get($cookieName), $provider);
+            $connected = $adapter->isConnected();
         } catch (\Exception $e) {
             $response = new RedirectResponse($this->generateUrl($callbackRoute));
             if ($deleteSessionData) {
@@ -63,7 +63,6 @@ class AzineHybridAuthJsonController extends Controller
 
         if (!$connected || $deleteSessionData) {
             try {
-                $adapter = $hybridAuth->getAdapter($provider);
                 setcookie($cookieName, null, -1, '/', $request->getHost(), $request->isSecure(), true);
                 $adapter->authenticate();
             } catch (\Exception $e) {
