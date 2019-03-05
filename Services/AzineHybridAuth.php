@@ -250,26 +250,6 @@ class AzineHybridAuth
     }
 
     /**
-     * Get the Xing Adapter.
-     *
-     * @return \Hybrid_Providers_XING
-     */
-    public function getXing()
-    {
-        return $this->getProvider(null, 'xing');
-    }
-
-    /**
-     * Get the Xing api (OAuthClient).
-     *
-     * @return \OAuth1Client
-     */
-    public function getXingApi()
-    {
-        return $this->getXing()->api();
-    }
-
-    /**
      * Get the LinkedIn Adapter.
      *
      * @return \Hybrid_Providers_LinkedIn

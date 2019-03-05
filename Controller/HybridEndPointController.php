@@ -11,12 +11,6 @@ use Hybridauth\HttpClient\Util;
 
 class HybridEndPointController extends Controller
 {
-    private $initDone = false;
-    /**
-     * @var \Hybrid_Auth
-     */
-    private $hybridAuth;
-
     /**
      * @var ParameterBag
      */
@@ -46,12 +40,17 @@ class HybridEndPointController extends Controller
 
         try {
             $adapter->authenticate();
-            $this->getAzineHybridAuthService()->storeHybridAuthSessionData($request, $provider, json_encode($adapter->getAccessToken()));
+            $result = $this->getAzineHybridAuthService()->storeHybridAuthSessionData($request, $provider, json_encode($adapter->getAccessToken()));
         } catch (\Exception $e) {
             throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
         }
 
         $response = new RedirectResponse($this->generateUrl('user_edit'));
+
+        if($result instanceof Cookie){
+
+            $response->headers->setCookie($result);
+        }
 
         return $response;
     }
