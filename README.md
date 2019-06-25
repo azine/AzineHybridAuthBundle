@@ -72,7 +72,6 @@ php app/console doctrine:migrations:migrate
 ```
 
 ## Create apps on your preferred social networks/providers
- Xing => https://dev.xing.com/applications/dashboard
  LinkedIn => https://www.linkedin.com/secure/developer
  
 
@@ -81,9 +80,9 @@ Configure at least one provider. See the links above for a list of available pro
 
 The providers in the "hybridauth\hybridauth\Hybrid\Providers"-folder are available by default via their ID,
 the providers in the "hybridauth\additional-providers"-folder must be configured. => see the configuration 
-of the wrapper for the xing provider below.
+of the wrapper for the linkedIn provider below.
 
-For the Xing and the LinkedIn provider there are some extra functionalities implemented. 
+For the LinkedIn provider there are some extra functionalities implemented. 
 For all others, there's the default functionality from the HybridAuth available.
 
 ```
@@ -110,19 +109,10 @@ azine_hybrid_auth:
                 secret:               ~ # your secret for this provider
 ```
 
-Here's the example for the xing and linkedin provider:
+Here's the example for the linkedin provider:
 ```
 //app/config/config.yml
 azine_hybrid_auth:
-        xing:
-            enabled: true
-            scope: ~
-            wrapper: 
-              path: "%kernel.root_dir%/../vendor/hybridauth/hybridauth/additional-providers/hybridauth-xing/Providers/XING.php"
-              class: Hybrid_Providers_XING
-            keys:
-                key: %xing_api_consumer_key%
-                secret: %xing_api_secret%
         linkedin:
             enabled: true
             scope: "r_ basicprofile, r_network"
@@ -130,15 +120,12 @@ azine_hybrid_auth:
                 key: %linkedin_api_key%
                 secret: %linkedin_api_secret%
 ```
-Define the keys and secrets for xing and linkedin in you parameters.yml.dist file.
+Define the keys and secrets for linkedin in you parameters.yml.dist file.
 
 ## AzineMergedBusinessNetworksProvider
-This service / provider offers some confienience methods to work with business-networks (Xing & LinkedIn).
-All methods expect the user to be "connected" to xing/linkedin. If the user has not yet authorized your app
+This service / provider offers some confienience methods to work with business-networks (LinkedIn).
+All methods expect the user to be "connected" to linkedin. If the user has not yet authorized your app
 to access the data, a http-redirect will be output directly by setting the html-header-location and calling "die". 
-
-### getXingInContacts()
-Get all xing contacts of the current user.
 
 Not cached, not paged.
 

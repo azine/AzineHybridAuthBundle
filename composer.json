@@ -22,7 +22,7 @@
         "symfony/console": "~2.7|^3.0|^4.0",
         "symfony/finder": "~2.7|^3.0|^4.0",
         "symfony/security-bundle": "~2.7|^3.0|^4.0",
-        "hybridauth/hybridauth": "~2.6,<=2.9",
+        "hybridauth/hybridauth": "~3.0",
         "monolog/monolog": "~1.6,>=1.6.0"
     },
     "require-dev": {

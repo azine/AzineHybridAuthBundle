@@ -5,6 +5,7 @@ namespace Azine\HybridAuthBundle\Services;
 use Azine\HybridAuthBundle\DependencyInjection\AzineHybridAuthExtension;
 use Azine\HybridAuthBundle\Entity\HybridAuthSessionData;
 use Doctrine\Common\Persistence\ObjectManager;
+use Hybridauth\Hybridauth;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -71,6 +72,7 @@ class AzineHybridAuth
         $base_url = $router->generate($config[AzineHybridAuthExtension::ENDPOINT_ROUTE], array(), UrlGeneratorInterface::ABSOLUTE_URL);
         $config[AzineHybridAuthExtension::BASE_URL] = $base_url;
         $this->config = $config;
+        $this->config['callback'] = $base_url;
         $this->objectManager = $manager;
         $this->storeForUser = $storeForUser;
         $this->storeAsCookie = $storeAsCookie;
@@ -82,22 +84,24 @@ class AzineHybridAuth
     }
 
     /**
-     * Get a Hybrid_Auth instance initialised for the given provider.
+     * Get a AdapterInterface instance initialised for the given provider.
      * HybridAuthSessions will be restored from DB and/or cookies, according to the bundle configuration.
      *
      * @param $cookieSessionData
      * @param $provider
      *
-     * @return \Hybrid_Auth
+     * @return \Hybridauth\Adapter\AdapterInterface
      */
     public function getInstance($cookieSessionData, $provider)
     {
         if (array_key_exists($provider, $this->instances)) {
             $hybridAuth = $this->instances[$provider];
         } else {
-            $hybridAuth = new \Hybrid_Auth($this->config);
+            $hybridAuth = new Hybridauth($this->config);
             $this->instances[$provider] = $hybridAuth;
         }
+
+        $adapter = $this->instances[$provider]->getAdapter($provider);
         $restoredFromDB = false;
         $sessionData = null;
         $isExpiredSession = false;
@@ -132,10 +136,10 @@ class AzineHybridAuth
             }
         }
         if ($sessionData) {
-            $hybridAuth->restoreSessionData($sessionData);
-        }
 
-        return $hybridAuth;
+            $adapter->setAccessToken(json_decode($sessionData, true));
+        }
+        return $adapter;
     }
 
     /**
@@ -205,7 +209,7 @@ class AzineHybridAuth
     }
 
     /**
-     * Use this function to get access to a HybridAuthProvider.
+     * Use this function to get access to a \Hybridauth\Adapter\AdapterInterface instance.
      *
      * Calling this method will log the user in (make a roundtrip to the providers site and back to your site again)
      * and call the page again that you came from.
@@ -216,12 +220,12 @@ class AzineHybridAuth
      * @param string $provider_id
      * @param bool   $require_login
      *
-     * @return \Hybrid_Provider_Model
+     * @return \Hybridauth\Adapter\AdapterInterface
      */
     public function getProvider($authSessionData, $provider_id, $require_login = true)
     {
-        $adapter = $this->getInstance($authSessionData, $provider_id)->getAdapter($provider_id);
-        if ($require_login && !$adapter->isUserConnected()) {
+        $adapter = $this->getInstance($authSessionData, $provider_id);
+        if ($require_login && !$adapter->isConnected()) {
             $adapter->login();
         }
 
@@ -239,30 +243,10 @@ class AzineHybridAuth
     public function isConnected(Request $request, $provider_id)
     {
         $sessionData = $request->cookies->get($this->getCookieName($provider_id));
-        $adapter = $this->getInstance($sessionData, $provider_id)->getAdapter($provider_id);
-        $connected = $adapter->isUserConnected();
+        $adapter = $this->getInstance($sessionData, $provider_id);
+        $connected = $adapter->isConnected();
 
         return $connected;
-    }
-
-    /**
-     * Get the Xing Adapter.
-     *
-     * @return \Hybrid_Providers_XING
-     */
-    public function getXing()
-    {
-        return $this->getProvider(null, 'xing');
-    }
-
-    /**
-     * Get the Xing api (OAuthClient).
-     *
-     * @return \OAuth1Client
-     */
-    public function getXingApi()
-    {
-        return $this->getXing()->api();
     }
 
     /**
