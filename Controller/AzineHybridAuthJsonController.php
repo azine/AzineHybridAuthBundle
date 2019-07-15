@@ -44,16 +44,20 @@ class AzineHybridAuthJsonController extends Controller
      */
     public function connectUserAction(Request $request, $provider, $callbackRoute = null)
     {
+        $params = $request->query->all();
+        $callbackUrl = $this->generateUrl($callbackRoute, $params);
+
         $deleteSessionData = $request->query->get('force', false);
         $cookieName = $this->getAzineHybridAuthService()->getCookieName($provider);
         if ($deleteSessionData) {
             $this->getAzineHybridAuthService()->deleteSession($provider);
         }
         try {
-            $hybridAuth = $this->getAzineHybridAuthService()->getInstance($request->cookies->get($cookieName), $provider);
-            $connected = $hybridAuth->isConnectedWith($provider);
+            $adapter = $this->getAzineHybridAuthService()->getInstance($request->cookies->get($cookieName), $provider);
+            $adapter->getStorage()->set("hauth_session.$provider.hauth_return_to", $callbackUrl);
+            $connected = $adapter->isConnected();
         } catch (\Exception $e) {
-            $response = new RedirectResponse($this->generateUrl($callbackRoute));
+            $response = new RedirectResponse($callbackUrl);
             if ($deleteSessionData) {
                 $response->headers->clearCookie($cookieName, '/', $request->getHost(), $request->isSecure(), true);
             }
@@ -63,16 +67,13 @@ class AzineHybridAuthJsonController extends Controller
 
         if (!$connected || $deleteSessionData) {
             try {
-                $adapter = $hybridAuth->getAdapter($provider);
                 setcookie($cookieName, null, -1, '/', $request->getHost(), $request->isSecure(), true);
-                $adapter->login();
+                $adapter->authenticate();
             } catch (\Exception $e) {
                 throw new \Exception("Unable to create adapter for provider '$provider'. Is it configured properly?", $e->getCode(), $e);
             }
         }
 
-        $params = $request->query->all();
-        $callbackUrl = $this->generateUrl($callbackRoute, $params);
         if (!$callbackUrl) {
             throw new \Exception('Callback route not defined');
         }
@@ -106,6 +107,9 @@ class AzineHybridAuthJsonController extends Controller
                 $genderGuesser = $this->get('azine_hybrid_auth_gender_guesser');
                 $gender = $genderGuesser->guess($profile->firstName);
                 $profile->gender = is_array($gender) ? $gender['gender'] : null;
+            }
+            if (!$profile->profileURL) {
+                $profile->profileURL = "LinkedIn doesn't allow to access this. :-/";
             }
         } else {
             $profile = $this->getBusinessNetworkProviderService()->getUserContactBasicProfile($provider, $userId);
