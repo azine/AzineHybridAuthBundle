@@ -4,6 +4,7 @@ namespace Azine\HybridAuthBundle\Controller;
 
 use Hybridauth\Adapter\AbstractAdapter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
