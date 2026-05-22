@@ -37,12 +37,12 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
         // if redirected to a login-page, login as admin-user
         if (5 == $crawler->filter('input')->count() && 1 == $crawler->filter('#username')->count() && 1 == $crawler->filter('#password')->count()) {
             // set the password of the admin
-            $userProvider = $this->getContainer()->get('fos_user.user_provider.username_email');
+            $userProvider = $this->getAppContainer()->get('fos_user.user_provider.username_email');
             $user = $userProvider->loadUserByUsername($username);
             $user->setPlainPassword($password);
             $user->addRole('ROLE_ADMIN');
 
-            $userManager = $this->getContainer()->get('fos_user.user_manager');
+            $userManager = $this->getAppContainer()->get('fos_user.user_manager');
             $userManager->updateUser($user);
 
             $crawler = $crawler->selectButton('Login');
@@ -70,7 +70,7 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
      *
      * @return \Symfony\Component\DependencyInjection\ContainerInterface
      */
-    private function getContainer()
+    private function getAppContainer()
     {
         if (null == $this->appContainer) {
             $this->appContainer = static::$kernel->getContainer();
@@ -84,7 +84,7 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
      */
     private function getRouter()
     {
-        return $this->getContainer()->get('router');
+        return $this->getAppContainer()->get('router');
     }
 
     /**
@@ -92,7 +92,7 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
      */
     private function getEntityManager()
     {
-        return $this->getContainer()->get('doctrine.orm.entity_manager');
+        return $this->getAppContainer()->get('doctrine.orm.entity_manager');
     }
 
     /**
@@ -100,7 +100,7 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
      */
     private function getEventDispatcher()
     {
-        return $this->getContainer()->get('event_dispatcher');
+        return $this->getAppContainer()->get('event_dispatcher');
     }
 
     /**
