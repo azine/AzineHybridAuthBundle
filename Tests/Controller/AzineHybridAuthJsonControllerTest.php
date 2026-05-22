@@ -5,7 +5,6 @@ namespace Azine\HybridAuthBundle\Tests\Controller;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -37,12 +36,12 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
         // if redirected to a login-page, login as admin-user
         if (5 == $crawler->filter('input')->count() && 1 == $crawler->filter('#username')->count() && 1 == $crawler->filter('#password')->count()) {
             // set the password of the admin
-            $userProvider = $this->getContainer()->get('fos_user.user_provider.username_email');
+            $userProvider = static::getContainer()->get('fos_user.user_provider.username_email');
             $user = $userProvider->loadUserByUsername($username);
             $user->setPlainPassword($password);
             $user->addRole('ROLE_ADMIN');
 
-            $userManager = $this->getContainer()->get('fos_user.user_manager');
+            $userManager = static::getContainer()->get('fos_user.user_manager');
             $userManager->updateUser($user);
 
             $crawler = $crawler->selectButton('Login');
@@ -61,30 +60,11 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
     }
 
     /**
-     * @var ContainerInterface
-     */
-    private $appContainer;
-
-    /**
-     * Get the current container.
-     *
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    private function getContainer()
-    {
-        if (null == $this->appContainer) {
-            $this->appContainer = static::$kernel->getContainer();
-        }
-
-        return $this->appContainer;
-    }
-
-    /**
      * @return UrlGeneratorInterface
      */
     private function getRouter()
     {
-        return $this->getContainer()->get('router');
+        return static::getContainer()->get('router');
     }
 
     /**
@@ -92,7 +72,7 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
      */
     private function getEntityManager()
     {
-        return $this->getContainer()->get('doctrine.orm.entity_manager');
+        return static::getContainer()->get('doctrine.orm.entity_manager');
     }
 
     /**
@@ -100,7 +80,7 @@ class AzineHybridAuthJsonControllerTest extends WebTestCase
      */
     private function getEventDispatcher()
     {
-        return $this->getContainer()->get('event_dispatcher');
+        return static::getContainer()->get('event_dispatcher');
     }
 
     /**

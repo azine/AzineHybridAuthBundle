@@ -1,9 +1,15 @@
 AzineHybridAuthBundle
 ==================
 
-Symfony2 bundle to integrate the HybridAuth library to get access the API of various social networks. 
+Symfony bundle to integrate the HybridAuth library and access social network APIs.
 
 See https://github.com/hybridauth/hybridauth for more details on the integrated library.
+
+
+## Requirements
+
+- PHP 8.5 or newer
+- Symfony 7.4 components
 
 ## Available APIs
 A lot of providers are available. See the following two links for a complete list:
@@ -157,7 +163,7 @@ The PR should:
 - contain clean code with some iniline documentation and phpdocs, no "pure whitespace" changes.
 - respect the [Symfony best practices](http://symfony.com/doc/current/bundles/best_practices.html) and coding style
 - have phpunit tests covering the new feature or fix
-- result in a 'green' build for your branch on [travis-ci.org](https://travis-ci.org/azine/AzineHybridAuthBundle/branches) before you issue the PR
+- result in a green build for your branch on GitHub Actions before you issue the PR
 
 ## Code style
 You can check the code style with the `php-cs-fixer`. Optionally you can set up a pre-commit hook which contains the `php-cs-fixer` check. Also see https://github.com/FriendsOfPHP/PHP-CS-Fixer
@@ -171,9 +177,22 @@ To run `php-cs-fixer` manually, install dependencies (`composer install`) and ex
 
 ## Build-Status ec.
 
-[![Build Status](https://api.travis-ci.org/azine/AzineHybridAuthBundle.svg)](https://travis-ci.org/azine/AzineHybridAuthBundle)
 [![Total Downloads](https://poser.pugx.org/azine/hybridauth-bundle/downloads.png)](https://packagist.org/packages/azine/hybridauth-bundle)
 [![Latest Stable Version](https://poser.pugx.org/azine/hybridauth-bundle/v/stable.png)](https://packagist.org/packages/azine/hybridauth-bundle)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/badges/quality-score.png?s=6190311a47fa9ab8cfb45bfce5c5dcc49fc75256)](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/)
 [![Code Coverage](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/badges/coverage.png?s=57b026ec89fdc0767c1255c4a23b9e87a337a205)](https://scrutinizer-ci.com/g/azine/AzineHybridAuthBundle/)
 
+
+
+## Running tests locally
+
+```bash
+composer update
+composer test
+```
+
+## Upgrade notes
+
+- The bundle now targets PHP 8.5 and Symfony 7.4.
+- CI is now provided by GitHub Actions (`.github/workflows/ci.yml`) and runs on every push and pull request.
+- Legacy Travis CI configuration has been removed in favor of GitHub Actions.

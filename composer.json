@@ -1,8 +1,12 @@
 {
     "name": "azine/hybridauth-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony2 bundle to access the profiles via Xing- and Linkedin-API, uses HybridAuth",
-    "keywords": ["xing", "oauth", "xing api"],
+    "description": "Symfony bundle to access profiles via Xing and LinkedIn APIs using HybridAuth",
+    "keywords": [
+        "xing",
+        "oauth",
+        "xing api"
+    ],
     "homepage": "https://github.com/azine/AzineHybridAuthBundle",
     "license": "MIT",
     "authors": [
@@ -13,25 +17,45 @@
     ],
     "config": {
         "process-timeout": 590,
-        "github-protocols": ["https", "git", "ssh"],
-        "github-domains": ["github.com"]
+        "github-protocols": [
+            "https",
+            "git",
+            "ssh"
+        ],
+        "github-domains": [
+            "github.com"
+        ],
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "require": {
-        "php": ">=5.6.0",
-        "symfony/framework-bundle": "~2.7|^3.0|^4.0",
-        "symfony/console": "~2.7|^3.0|^4.0",
-        "symfony/finder": "~2.7|^3.0|^4.0",
-        "symfony/security-bundle": "~2.7|^3.0|^4.0",
-        "hybridauth/hybridauth": "~3.0",
-        "monolog/monolog": "~1.6,>=1.6.0"
+        "php": "^8.5",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/console": "^7.4",
+        "symfony/finder": "^7.4",
+        "symfony/security-bundle": "^7.4",
+        "hybridauth/hybridauth": "^3.13",
+        "monolog/monolog": "^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit":  "~5.7.27|^6.0|^7.0",
-        "friendsofphp/php-cs-fixer": "^2.2"
+        "phpunit/phpunit": "^12.0",
+        "friendsofphp/php-cs-fixer": "^3.0"
     },
     "autoload": {
-        "psr-0": { "Azine\\HybridAuthBundle": "" }
+        "psr-4": {
+            "Azine\\HybridAuthBundle\\": ""
+        }
     },
-    "minimum-stability": "dev",
-    "target-dir": "Azine/HybridAuthBundle"
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "autoload-dev": {
+        "psr-4": {
+            "Azine\\HybridAuthBundle\\Tests\\": "Tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit -c phpunit.xml.dist"
+    }
 }
