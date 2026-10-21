@@ -6,6 +6,8 @@ Symfony2 bundle to integrate the HybridAuth library to get access the API of var
 See https://github.com/hybridauth/hybridauth for more details on the integrated library.
 
 ## Available APIs
+
+Requires PHP 8.5.12 or newer.
 A lot of providers are available. See the following two links for a complete list:
 
 https://github.com/hybridauth/hybridauth/tree/master/hybridauth/Hybrid/Providers
